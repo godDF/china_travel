@@ -1,0 +1,49 @@
+{
+    "people_number": 1,
+    "start_city": "Shanghai",
+    "target_city": "Hangzhou",
+    "itinerary": [
+        {
+            "day": 1,
+            "activities": [
+                {
+                    "start_time": "05:26",
+                    "end_time": "07:27",
+                    "start": "Shanghai South Railway Station",
+                    "end": "Hangzhou South Railway Station",
+                    "price": 65.95,
+                    "cost": 65.95,
+                    "tickets": 1,
+                    "transports": [],
+                    "TrainID": "K335",
+                    "type": "train"
+                },
+                {
+                    "start_time": "07:48",
+                    "end_time": "09:59",
+                    "start": "Hangzhou South Railway Station",
+                    "end": "Shanghai South Railway Station",
+                    "price": 82.44,
+                    "cost": 82.44,
+                    "tickets": 1,
+                    "transports": [
+                        {
+                            "start": "Hangzhou South Railway Station",
+                            "end": "Hangzhou South Railway Station",
+                            "mode": "walk",
+                            "start_time": "07:27",
+                            "end_time": "07:27",
+                            "cost": 0.0,
+                            "distance": 0.0,
+                            "price": 0.0
+                        }
+                    ],
+                    "TrainID": "T78",
+                    "type": "train"
+                }
+            ]
+        }
+    ],
+    "search_time_sec": 23.123600244522095,
+    "llm_inference_time_sec": 22.524855375289917
+}

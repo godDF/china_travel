@@ -1,0 +1,1280 @@
+{
+    "people_number": 3,
+    "start_city": "Beijing",
+    "target_city": "Chongqing",
+    "itinerary": [
+        {
+            "day": 1,
+            "activities": [
+                {
+                    "start_time": "09:43",
+                    "end_time": "11:32",
+                    "start": "Beijing Capital International Airport",
+                    "end": "Chongqing Jiangbei International Airport",
+                    "price": 692.46,
+                    "cost": 2077.38,
+                    "tickets": 3,
+                    "transports": [],
+                    "FlightID": "FL113",
+                    "type": "airplane"
+                },
+                {
+                    "position": "Gracia Garden Restaurant",
+                    "type": "lunch",
+                    "price": 145,
+                    "cost": 435,
+                    "start_time": "12:24",
+                    "end_time": "13:24",
+                    "transports": [
+                        {
+                            "start": "Chongqing Jiangbei International Airport",
+                            "end": "Jiangbei Airport Terminal 3-Metro Station",
+                            "mode": "walk",
+                            "start_time": "11:32",
+                            "end_time": "11:46",
+                            "cost": 0,
+                            "distance": 1.21,
+                            "price": 0
+                        },
+                        {
+                            "start": "Jiangbei Airport Terminal 3-Metro Station",
+                            "end": "Grand Theater-Metro Station",
+                            "mode": "metro",
+                            "start_time": "11:46",
+                            "end_time": "12:20",
+                            "cost": 15,
+                            "distance": 17.16,
+                            "price": 5,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Grand Theater-Metro Station",
+                            "end": "Gracia Garden Restaurant",
+                            "mode": "walk",
+                            "start_time": "12:20",
+                            "end_time": "12:24",
+                            "cost": 0,
+                            "distance": 0.36,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Yangtze River Cableway",
+                    "type": "attraction",
+                    "price": 20,
+                    "cost": 60,
+                    "start_time": "13:33",
+                    "end_time": "15:03",
+                    "transports": [
+                        {
+                            "start": "Gracia Garden Restaurant",
+                            "end": "Grand Theater-Metro Station",
+                            "mode": "walk",
+                            "start_time": "13:24",
+                            "end_time": "13:28",
+                            "cost": 0,
+                            "distance": 0.36,
+                            "price": 0
+                        },
+                        {
+                            "start": "Grand Theater-Metro Station",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "13:28",
+                            "end_time": "13:30",
+                            "cost": 6,
+                            "distance": 1.07,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Yangtze River Cableway",
+                            "mode": "walk",
+                            "start_time": "13:30",
+                            "end_time": "13:33",
+                            "cost": 0,
+                            "distance": 0.33,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Gray Whale Restaurant (IFS Store)",
+                    "type": "dinner",
+                    "price": 153,
+                    "cost": 459,
+                    "start_time": "17:00",
+                    "end_time": "18:00",
+                    "transports": [
+                        {
+                            "start": "Yangtze River Cableway",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "15:03",
+                            "end_time": "15:06",
+                            "cost": 0,
+                            "distance": 0.33,
+                            "price": 0
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Jiangbei City-Metro Station",
+                            "mode": "metro",
+                            "start_time": "15:06",
+                            "end_time": "15:09",
+                            "cost": 6,
+                            "distance": 1.82,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Jiangbei City-Metro Station",
+                            "end": "Gray Whale Restaurant (IFS Store)",
+                            "mode": "walk",
+                            "start_time": "15:09",
+                            "end_time": "15:10",
+                            "cost": 0,
+                            "distance": 0.11,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Chongqing Two Rivers Cruise",
+                    "type": "attraction",
+                    "price": 138,
+                    "cost": 414,
+                    "start_time": "18:09",
+                    "end_time": "19:39",
+                    "transports": [
+                        {
+                            "start": "Gray Whale Restaurant (IFS Store)",
+                            "end": "Jiangbei City-Metro Station",
+                            "mode": "walk",
+                            "start_time": "18:00",
+                            "end_time": "18:01",
+                            "cost": 0,
+                            "distance": 0.11,
+                            "price": 0
+                        },
+                        {
+                            "start": "Jiangbei City-Metro Station",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "18:01",
+                            "end_time": "18:04",
+                            "cost": 6,
+                            "distance": 1.82,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Chongqing Two Rivers Cruise",
+                            "mode": "walk",
+                            "start_time": "18:04",
+                            "end_time": "18:09",
+                            "cost": 0,
+                            "distance": 0.49,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Chongqing City Sightseeing Bus Tour",
+                    "type": "attraction",
+                    "price": 15,
+                    "cost": 45,
+                    "start_time": "19:53",
+                    "end_time": "21:23",
+                    "transports": [
+                        {
+                            "start": "Chongqing Two Rivers Cruise",
+                            "end": "Chongqing City Sightseeing Bus Tour",
+                            "mode": "walk",
+                            "start_time": "19:39",
+                            "end_time": "19:53",
+                            "cost": 0.0,
+                            "distance": 1.2048985021220047,
+                            "price": 0.0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Melia Chongqing",
+                    "type": "accommodation",
+                    "price": 566,
+                    "cost": 1132,
+                    "start_time": "22:13",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "Chongqing City Sightseeing Bus Tour",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "21:23",
+                            "end_time": "21:31",
+                            "cost": 0,
+                            "distance": 0.71,
+                            "price": 0
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:31",
+                            "end_time": "21:50",
+                            "cost": 12,
+                            "distance": 9.55,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Melia Chongqing",
+                            "mode": "walk",
+                            "start_time": "21:50",
+                            "end_time": "22:13",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 2,
+                    "rooms": 2
+                }
+            ]
+        },
+        {
+            "day": 2,
+            "activities": [
+                {
+                    "position": "Melia Chongqing",
+                    "type": "breakfast",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "08:00",
+                    "end_time": "08:30",
+                    "transports": []
+                },
+                {
+                    "position": "Chongqing Zoo",
+                    "type": "attraction",
+                    "price": 24,
+                    "cost": 72,
+                    "start_time": "09:34",
+                    "end_time": "11:04",
+                    "transports": [
+                        {
+                            "start": "Melia Chongqing",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:30",
+                            "end_time": "08:53",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Yangjiaping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:53",
+                            "end_time": "09:30",
+                            "cost": 15,
+                            "distance": 18.96,
+                            "price": 5,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Yangjiaping-Metro Station",
+                            "end": "Chongqing Zoo",
+                            "mode": "walk",
+                            "start_time": "09:30",
+                            "end_time": "09:34",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Chongqing International Trade Grandview Hotel - Grand Tea House",
+                    "type": "lunch",
+                    "price": 58,
+                    "cost": 174,
+                    "start_time": "11:25",
+                    "end_time": "12:25",
+                    "transports": [
+                        {
+                            "start": "Chongqing Zoo",
+                            "end": "Yangjiaping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "11:04",
+                            "end_time": "11:08",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        },
+                        {
+                            "start": "Yangjiaping-Metro Station",
+                            "end": "Linjiangmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "11:08",
+                            "end_time": "11:23",
+                            "cost": 9,
+                            "distance": 7.95,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Linjiangmen-Metro Station",
+                            "end": "Chongqing International Trade Grandview Hotel - Grand Tea House",
+                            "mode": "walk",
+                            "start_time": "11:23",
+                            "end_time": "11:25",
+                            "cost": 0,
+                            "distance": 0.24,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Sanmao's Former Residence (District-Level Cultural Relic)",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "12:48",
+                    "end_time": "14:18",
+                    "transports": [
+                        {
+                            "start": "Chongqing International Trade Grandview Hotel - Grand Tea House",
+                            "end": "Linjiangmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "12:25",
+                            "end_time": "12:27",
+                            "cost": 0,
+                            "distance": 0.24,
+                            "price": 0
+                        },
+                        {
+                            "start": "Linjiangmen-Metro Station",
+                            "end": "Shanghao-Metro Station",
+                            "mode": "metro",
+                            "start_time": "12:27",
+                            "end_time": "12:31",
+                            "cost": 6,
+                            "distance": 2.3,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Shanghao-Metro Station",
+                            "end": "Sanmao's Former Residence (District-Level Cultural Relic)",
+                            "mode": "walk",
+                            "start_time": "12:31",
+                            "end_time": "12:48",
+                            "cost": 0,
+                            "distance": 1.44,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Diamond Gate Panoramic Night View Restaurant (Jiangbeicheng Branch)",
+                    "type": "dinner",
+                    "price": 572,
+                    "cost": 1716,
+                    "start_time": "17:00",
+                    "end_time": "18:00",
+                    "transports": [
+                        {
+                            "start": "Sanmao's Former Residence (District-Level Cultural Relic)",
+                            "end": "Shanghao-Metro Station",
+                            "mode": "walk",
+                            "start_time": "14:18",
+                            "end_time": "14:35",
+                            "cost": 0,
+                            "distance": 1.44,
+                            "price": 0
+                        },
+                        {
+                            "start": "Shanghao-Metro Station",
+                            "end": "Grand Theater-Metro Station",
+                            "mode": "metro",
+                            "start_time": "14:35",
+                            "end_time": "14:41",
+                            "cost": 6,
+                            "distance": 3.04,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Grand Theater-Metro Station",
+                            "end": "Diamond Gate Panoramic Night View Restaurant (Jiangbeicheng Branch)",
+                            "mode": "walk",
+                            "start_time": "14:41",
+                            "end_time": "14:44",
+                            "cost": 0,
+                            "distance": 0.27,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Ronghui Xiliutuo Town",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "18:16",
+                    "end_time": "19:46",
+                    "transports": [
+                        {
+                            "start": "Diamond Gate Panoramic Night View Restaurant (Jiangbeicheng Branch)",
+                            "end": "Ronghui Xiliutuo Town",
+                            "mode": "taxi",
+                            "start_time": "18:00",
+                            "end_time": "18:16",
+                            "cost": 44.29,
+                            "distance": 11.02,
+                            "price": 44.29,
+                            "cars": 1
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Chongqing Guotai Art Center",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "20:02",
+                    "end_time": "21:32",
+                    "transports": [
+                        {
+                            "start": "Ronghui Xiliutuo Town",
+                            "end": "Chongqing Guotai Art Center",
+                            "mode": "taxi",
+                            "start_time": "19:46",
+                            "end_time": "20:02",
+                            "cost": 45.28,
+                            "distance": 11.24,
+                            "price": 45.28,
+                            "cars": 1
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Melia Chongqing",
+                    "type": "accommodation",
+                    "price": 566,
+                    "cost": 1132,
+                    "start_time": "22:18",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "Chongqing Guotai Art Center",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "21:32",
+                            "end_time": "21:36",
+                            "cost": 0,
+                            "distance": 0.37,
+                            "price": 0
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:36",
+                            "end_time": "21:55",
+                            "cost": 12,
+                            "distance": 9.55,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Melia Chongqing",
+                            "mode": "walk",
+                            "start_time": "21:55",
+                            "end_time": "22:18",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 2,
+                    "rooms": 2
+                }
+            ]
+        },
+        {
+            "day": 3,
+            "activities": [
+                {
+                    "position": "Melia Chongqing",
+                    "type": "breakfast",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "08:00",
+                    "end_time": "08:30",
+                    "transports": []
+                },
+                {
+                    "position": "Xiuhu Park",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "10:50",
+                    "end_time": "12:20",
+                    "transports": [
+                        {
+                            "start": "Melia Chongqing",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:30",
+                            "end_time": "08:53",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Bishan-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:53",
+                            "end_time": "10:17",
+                            "cost": 24,
+                            "distance": 42.32,
+                            "price": 8,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Bishan-Metro Station",
+                            "end": "Xiuhu Park",
+                            "mode": "walk",
+                            "start_time": "10:17",
+                            "end_time": "10:50",
+                            "cost": 0,
+                            "distance": 2.81,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Brother Zhou's Chongqing Hot Pot (Porcelain Port Directly Operated Store)",
+                    "type": "lunch",
+                    "price": 101,
+                    "cost": 303,
+                    "start_time": "12:52",
+                    "end_time": "13:52",
+                    "transports": [
+                        {
+                            "start": "Xiuhu Park",
+                            "end": "Brother Zhou's Chongqing Hot Pot (Porcelain Port Directly Operated Store)",
+                            "mode": "taxi",
+                            "start_time": "12:20",
+                            "end_time": "12:52",
+                            "cost": 93.37,
+                            "distance": 21.93,
+                            "price": 93.37,
+                            "cars": 1
+                        }
+                    ]
+                },
+                {
+                    "position": "Jinyun Mountain",
+                    "type": "attraction",
+                    "price": 30,
+                    "cost": 90,
+                    "start_time": "15:33",
+                    "end_time": "16:00",
+                    "transports": [
+                        {
+                            "start": "Brother Zhou's Chongqing Hot Pot (Porcelain Port Directly Operated Store)",
+                            "end": "Ciqi Kou-Metro Station",
+                            "mode": "walk",
+                            "start_time": "13:52",
+                            "end_time": "13:53",
+                            "cost": 0,
+                            "distance": 0.11,
+                            "price": 0
+                        },
+                        {
+                            "start": "Ciqi Kou-Metro Station",
+                            "end": "Zhuangyuan Stele-Metro Station",
+                            "mode": "metro",
+                            "start_time": "13:53",
+                            "end_time": "14:44",
+                            "cost": 18,
+                            "distance": 25.52,
+                            "price": 6,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Zhuangyuan Stele-Metro Station",
+                            "end": "Jinyun Mountain",
+                            "mode": "walk",
+                            "start_time": "14:44",
+                            "end_time": "15:33",
+                            "cost": 0,
+                            "distance": 4.15,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Fat Brothers Crab Pot (Guanyinqiao Sunshine Century Branch)",
+                    "type": "dinner",
+                    "price": 76,
+                    "cost": 228,
+                    "start_time": "17:49",
+                    "end_time": "18:49",
+                    "transports": [
+                        {
+                            "start": "Jinyun Mountain",
+                            "end": "Zhuangyuan Stele-Metro Station",
+                            "mode": "walk",
+                            "start_time": "16:00",
+                            "end_time": "16:49",
+                            "cost": 0,
+                            "distance": 4.15,
+                            "price": 0
+                        },
+                        {
+                            "start": "Zhuangyuan Stele-Metro Station",
+                            "end": "Guanyinqiao-Metro Station",
+                            "mode": "metro",
+                            "start_time": "16:49",
+                            "end_time": "17:46",
+                            "cost": 21,
+                            "distance": 28.56,
+                            "price": 7,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Guanyinqiao-Metro Station",
+                            "end": "Fat Brothers Crab Pot (Guanyinqiao Sunshine Century Branch)",
+                            "mode": "walk",
+                            "start_time": "17:46",
+                            "end_time": "17:49",
+                            "cost": 0,
+                            "distance": 0.3,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Crown Escalator",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "19:01",
+                    "end_time": "20:00",
+                    "transports": [
+                        {
+                            "start": "Fat Brothers Crab Pot (Guanyinqiao Sunshine Century Branch)",
+                            "end": "Guanyinqiao-Metro Station",
+                            "mode": "walk",
+                            "start_time": "18:49",
+                            "end_time": "18:52",
+                            "cost": 0,
+                            "distance": 0.3,
+                            "price": 0
+                        },
+                        {
+                            "start": "Guanyinqiao-Metro Station",
+                            "end": "Great Hall-Metro Station",
+                            "mode": "metro",
+                            "start_time": "18:52",
+                            "end_time": "18:57",
+                            "cost": 6,
+                            "distance": 2.6,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Great Hall-Metro Station",
+                            "end": "Crown Escalator",
+                            "mode": "walk",
+                            "start_time": "18:57",
+                            "end_time": "19:01",
+                            "cost": 0,
+                            "distance": 0.38,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Daijia Alley Old Street",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "20:16",
+                    "end_time": "21:46",
+                    "transports": [
+                        {
+                            "start": "Crown Escalator",
+                            "end": "Great Hall-Metro Station",
+                            "mode": "walk",
+                            "start_time": "20:00",
+                            "end_time": "20:04",
+                            "cost": 0,
+                            "distance": 0.38,
+                            "price": 0
+                        },
+                        {
+                            "start": "Great Hall-Metro Station",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "20:04",
+                            "end_time": "20:10",
+                            "cost": 6,
+                            "distance": 3.11,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Daijia Alley Old Street",
+                            "mode": "walk",
+                            "start_time": "20:10",
+                            "end_time": "20:16",
+                            "cost": 0,
+                            "distance": 0.56,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Melia Chongqing",
+                    "type": "accommodation",
+                    "price": 566,
+                    "cost": 1132,
+                    "start_time": "22:34",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "Daijia Alley Old Street",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "21:46",
+                            "end_time": "21:52",
+                            "cost": 0,
+                            "distance": 0.56,
+                            "price": 0
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:52",
+                            "end_time": "22:11",
+                            "cost": 12,
+                            "distance": 9.55,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Melia Chongqing",
+                            "mode": "walk",
+                            "start_time": "22:11",
+                            "end_time": "22:34",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 2,
+                    "rooms": 2
+                }
+            ]
+        },
+        {
+            "day": 4,
+            "activities": [
+                {
+                    "position": "Melia Chongqing",
+                    "type": "breakfast",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "08:00",
+                    "end_time": "08:30",
+                    "transports": []
+                },
+                {
+                    "position": "Chongqing Urban Planning Exhibition Hall",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "09:15",
+                    "end_time": "10:45",
+                    "transports": [
+                        {
+                            "start": "Melia Chongqing",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:30",
+                            "end_time": "08:53",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Danshi-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:53",
+                            "end_time": "09:09",
+                            "cost": 9,
+                            "distance": 8.08,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Danshi-Metro Station",
+                            "end": "Chongqing Urban Planning Exhibition Hall",
+                            "mode": "walk",
+                            "start_time": "09:09",
+                            "end_time": "09:15",
+                            "cost": 0,
+                            "distance": 0.53,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Zunbao Pizza (Jinyuan Store, North Bin Road)",
+                    "type": "lunch",
+                    "price": 35,
+                    "cost": 105,
+                    "start_time": "11:15",
+                    "end_time": "12:15",
+                    "transports": [
+                        {
+                            "start": "Chongqing Urban Planning Exhibition Hall",
+                            "end": "Danshi-Metro Station",
+                            "mode": "walk",
+                            "start_time": "10:45",
+                            "end_time": "10:51",
+                            "cost": 0,
+                            "distance": 0.53,
+                            "price": 0
+                        },
+                        {
+                            "start": "Danshi-Metro Station",
+                            "end": "Lijiaping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "10:51",
+                            "end_time": "11:05",
+                            "cost": 9,
+                            "distance": 7.41,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Lijiaping-Metro Station",
+                            "end": "Zunbao Pizza (Jinyuan Store, North Bin Road)",
+                            "mode": "walk",
+                            "start_time": "11:05",
+                            "end_time": "11:15",
+                            "cost": 0,
+                            "distance": 0.85,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Chongqing Jianchuan Museum Cluster",
+                    "type": "attraction",
+                    "price": 45,
+                    "cost": 135,
+                    "start_time": "12:49",
+                    "end_time": "14:19",
+                    "transports": [
+                        {
+                            "start": "Zunbao Pizza (Jinyuan Store, North Bin Road)",
+                            "end": "Lijiaping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "12:15",
+                            "end_time": "12:25",
+                            "cost": 0,
+                            "distance": 0.85,
+                            "price": 0
+                        },
+                        {
+                            "start": "Lijiaping-Metro Station",
+                            "end": "Xiejiawan-Metro Station",
+                            "mode": "metro",
+                            "start_time": "12:25",
+                            "end_time": "12:34",
+                            "cost": 9,
+                            "distance": 4.94,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Xiejiawan-Metro Station",
+                            "end": "Chongqing Jianchuan Museum Cluster",
+                            "mode": "walk",
+                            "start_time": "12:34",
+                            "end_time": "12:49",
+                            "cost": 0,
+                            "distance": 1.32,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Jiahe Hong Kong Style Tea Restaurant (Chongqing Fortune Shopping Center Branch)",
+                    "type": "dinner",
+                    "price": 84,
+                    "cost": 252,
+                    "start_time": "17:00",
+                    "end_time": "18:00",
+                    "transports": [
+                        {
+                            "start": "Chongqing Jianchuan Museum Cluster",
+                            "end": "Xiejiawan-Metro Station",
+                            "mode": "walk",
+                            "start_time": "14:19",
+                            "end_time": "14:34",
+                            "cost": 0,
+                            "distance": 1.32,
+                            "price": 0
+                        },
+                        {
+                            "start": "Xiejiawan-Metro Station",
+                            "end": "Honghu East Road-Metro Station",
+                            "mode": "metro",
+                            "start_time": "14:34",
+                            "end_time": "14:53",
+                            "cost": 12,
+                            "distance": 9.83,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Honghu East Road-Metro Station",
+                            "end": "Jiahe Hong Kong Style Tea Restaurant (Chongqing Fortune Shopping Center Branch)",
+                            "mode": "walk",
+                            "start_time": "14:53",
+                            "end_time": "14:57",
+                            "cost": 0,
+                            "distance": 0.34,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Changjia Hui Danzishi Old Street",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "18:21",
+                    "end_time": "19:51",
+                    "transports": [
+                        {
+                            "start": "Jiahe Hong Kong Style Tea Restaurant (Chongqing Fortune Shopping Center Branch)",
+                            "end": "Honghu East Road-Metro Station",
+                            "mode": "walk",
+                            "start_time": "18:00",
+                            "end_time": "18:04",
+                            "cost": 0,
+                            "distance": 0.34,
+                            "price": 0
+                        },
+                        {
+                            "start": "Honghu East Road-Metro Station",
+                            "end": "Danshi-Metro Station",
+                            "mode": "metro",
+                            "start_time": "18:04",
+                            "end_time": "18:20",
+                            "cost": 9,
+                            "distance": 8.13,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Danshi-Metro Station",
+                            "end": "Changjia Hui Danzishi Old Street",
+                            "mode": "walk",
+                            "start_time": "18:20",
+                            "end_time": "18:21",
+                            "cost": 0,
+                            "distance": 0.13,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "East Water Gate and Ancient City Wall",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "20:03",
+                    "end_time": "21:33",
+                    "transports": [
+                        {
+                            "start": "Changjia Hui Danzishi Old Street",
+                            "end": "Danshi-Metro Station",
+                            "mode": "walk",
+                            "start_time": "19:51",
+                            "end_time": "19:52",
+                            "cost": 0,
+                            "distance": 0.13,
+                            "price": 0
+                        },
+                        {
+                            "start": "Danshi-Metro Station",
+                            "end": "Renji-Metro Station",
+                            "mode": "metro",
+                            "start_time": "19:52",
+                            "end_time": "19:56",
+                            "cost": 6,
+                            "distance": 2.49,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Renji-Metro Station",
+                            "end": "East Water Gate and Ancient City Wall",
+                            "mode": "walk",
+                            "start_time": "19:56",
+                            "end_time": "20:03",
+                            "cost": 0,
+                            "distance": 0.66,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Melia Chongqing",
+                    "type": "accommodation",
+                    "price": 566,
+                    "cost": 1132,
+                    "start_time": "22:20",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "East Water Gate and Ancient City Wall",
+                            "end": "Renji-Metro Station",
+                            "mode": "walk",
+                            "start_time": "21:33",
+                            "end_time": "21:40",
+                            "cost": 0,
+                            "distance": 0.66,
+                            "price": 0
+                        },
+                        {
+                            "start": "Renji-Metro Station",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:40",
+                            "end_time": "21:57",
+                            "cost": 9,
+                            "distance": 8.59,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Melia Chongqing",
+                            "mode": "walk",
+                            "start_time": "21:57",
+                            "end_time": "22:20",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 2,
+                    "rooms": 2
+                }
+            ]
+        },
+        {
+            "day": 5,
+            "activities": [
+                {
+                    "position": "Melia Chongqing",
+                    "type": "breakfast",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "08:00",
+                    "end_time": "08:30",
+                    "transports": []
+                },
+                {
+                    "position": "Chongqing Library",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "14:00",
+                    "end_time": "15:30",
+                    "transports": [
+                        {
+                            "start": "Melia Chongqing",
+                            "end": "Tieshanping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:30",
+                            "end_time": "08:53",
+                            "cost": 0,
+                            "distance": 1.93,
+                            "price": 0
+                        },
+                        {
+                            "start": "Tieshanping-Metro Station",
+                            "end": "Tianxing Bridge-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:53",
+                            "end_time": "09:36",
+                            "cost": 18,
+                            "distance": 21.92,
+                            "price": 6,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Tianxing Bridge-Metro Station",
+                            "end": "Chongqing Library",
+                            "mode": "walk",
+                            "start_time": "09:36",
+                            "end_time": "09:41",
+                            "cost": 0,
+                            "distance": 0.47,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Hongxia Restaurant",
+                    "type": "dinner",
+                    "price": 70,
+                    "cost": 210,
+                    "start_time": "17:00",
+                    "end_time": "18:00",
+                    "transports": [
+                        {
+                            "start": "Chongqing Library",
+                            "end": "Tianxing Bridge-Metro Station",
+                            "mode": "walk",
+                            "start_time": "15:30",
+                            "end_time": "15:35",
+                            "cost": 0,
+                            "distance": 0.47,
+                            "price": 0
+                        },
+                        {
+                            "start": "Tianxing Bridge-Metro Station",
+                            "end": "Beibei-Metro Station",
+                            "mode": "metro",
+                            "start_time": "15:35",
+                            "end_time": "16:37",
+                            "cost": 21,
+                            "distance": 31.44,
+                            "price": 7,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Beibei-Metro Station",
+                            "end": "Hongxia Restaurant",
+                            "mode": "walk",
+                            "start_time": "16:37",
+                            "end_time": "16:52",
+                            "cost": 0,
+                            "distance": 1.31,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Tongluoshan Mining Park",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "18:49",
+                    "end_time": "20:00",
+                    "transports": [
+                        {
+                            "start": "Hongxia Restaurant",
+                            "end": "Tongluoshan Mining Park",
+                            "mode": "taxi",
+                            "start_time": "18:00",
+                            "end_time": "18:49",
+                            "cost": 143.29,
+                            "distance": 33.02,
+                            "price": 143.29,
+                            "cars": 1
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "start_time": "23:16",
+                    "end_time": "01:05",
+                    "start": "Chongqing Jiangbei International Airport",
+                    "end": "Beijing Capital International Airport",
+                    "price": 687.46,
+                    "cost": 2062.38,
+                    "tickets": 3,
+                    "transports": [
+                        {
+                            "start": "Tongluoshan Mining Park",
+                            "end": "Pufu-Metro Station",
+                            "mode": "walk",
+                            "start_time": "20:00",
+                            "end_time": "21:02",
+                            "cost": 0,
+                            "distance": 5.24,
+                            "price": 0
+                        },
+                        {
+                            "start": "Pufu-Metro Station",
+                            "end": "Jiangbei Airport Terminal 3-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:02",
+                            "end_time": "21:31",
+                            "cost": 15,
+                            "distance": 14.55,
+                            "price": 5,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Jiangbei Airport Terminal 3-Metro Station",
+                            "end": "Chongqing Jiangbei International Airport",
+                            "mode": "walk",
+                            "start_time": "21:31",
+                            "end_time": "21:45",
+                            "cost": 0,
+                            "distance": 1.21,
+                            "price": 0
+                        }
+                    ],
+                    "FlightID": "FL337",
+                    "type": "airplane"
+                }
+            ]
+        }
+    ],
+    "search_time_sec": 235.66275453567505,
+    "llm_inference_time_sec": 120.90669679641724
+}

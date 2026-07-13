@@ -1,0 +1,11 @@
+environment/database/*
+environment/database_en/*
+local_llm/*
+data/*
+!data/load_datasets.py
+# !data/en/
+# !data/en/**
+evaluation/default_splits/*
+!evaluation/default_splits/easy.txt
+!evaluation/default_splits/medium.txt
+!evaluation/default_splits/human.txt

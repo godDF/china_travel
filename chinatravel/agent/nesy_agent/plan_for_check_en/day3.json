@@ -1,0 +1,446 @@
+{
+    "people_number": 1,
+    "start_city": "Guangzhou",
+    "target_city": "Beijing",
+    "itinerary": [
+        {
+            "day": 1,
+            "activities": [
+                {
+                    "start_time": "08:25",
+                    "end_time": "16:27",
+                    "start": "Guangzhou South Railway Station",
+                    "end": "Beijing West Railway Station",
+                    "price": 1227.58,
+                    "cost": 1227.58,
+                    "tickets": 1,
+                    "transports": [],
+                    "TrainID": "G82",
+                    "type": "train"
+                },
+                {
+                    "position": "The Lotus Garden",
+                    "type": "dinner",
+                    "price": 238,
+                    "cost": 238,
+                    "start_time": "17:34",
+                    "end_time": "18:34",
+                    "transports": [
+                        {
+                            "start": "Beijing West Railway Station",
+                            "end": "Beijing West Railway Station-Metro Station",
+                            "mode": "walk",
+                            "start_time": "16:27",
+                            "end_time": "16:27",
+                            "cost": 0,
+                            "distance": 0.08,
+                            "price": 0
+                        },
+                        {
+                            "start": "Beijing West Railway Station-Metro Station",
+                            "end": "Universal Resort-Metro Station",
+                            "mode": "metro",
+                            "start_time": "16:27",
+                            "end_time": "17:29",
+                            "cost": 7,
+                            "distance": 31.03,
+                            "price": 7,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Universal Resort-Metro Station",
+                            "end": "The Lotus Garden",
+                            "mode": "walk",
+                            "start_time": "17:29",
+                            "end_time": "17:34",
+                            "cost": 0,
+                            "distance": 0.5,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "SOLANA Blue Harbor",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "19:24",
+                    "end_time": "20:54",
+                    "transports": [
+                        {
+                            "start": "The Lotus Garden",
+                            "end": "Universal Resort-Metro Station",
+                            "mode": "walk",
+                            "start_time": "18:34",
+                            "end_time": "18:39",
+                            "cost": 0,
+                            "distance": 0.5,
+                            "price": 0
+                        },
+                        {
+                            "start": "Universal Resort-Metro Station",
+                            "end": "Dongfeng North Bridge-Metro Station",
+                            "mode": "metro",
+                            "start_time": "18:39",
+                            "end_time": "19:19",
+                            "cost": 5,
+                            "distance": 20.49,
+                            "price": 5,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Dongfeng North Bridge-Metro Station",
+                            "end": "SOLANA Blue Harbor",
+                            "mode": "walk",
+                            "start_time": "19:19",
+                            "end_time": "19:24",
+                            "cost": 0,
+                            "distance": 0.47,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 1
+                },
+                {
+                    "position": "Qiuguo S Hotel (Beijing Capital Airport Second Branch)",
+                    "type": "accommodation",
+                    "price": 319,
+                    "cost": 319,
+                    "start_time": "21:54",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "SOLANA Blue Harbor",
+                            "end": "Dongfeng North Bridge-Metro Station",
+                            "mode": "walk",
+                            "start_time": "20:54",
+                            "end_time": "20:59",
+                            "cost": 0,
+                            "distance": 0.47,
+                            "price": 0
+                        },
+                        {
+                            "start": "Dongfeng North Bridge-Metro Station",
+                            "end": "Terminal 2-Metro Station",
+                            "mode": "metro",
+                            "start_time": "20:59",
+                            "end_time": "21:31",
+                            "cost": 5,
+                            "distance": 16.24,
+                            "price": 5,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Terminal 2-Metro Station",
+                            "end": "Qiuguo S Hotel (Beijing Capital Airport Second Branch)",
+                            "mode": "walk",
+                            "start_time": "21:31",
+                            "end_time": "21:54",
+                            "cost": 0,
+                            "distance": 1.96,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 1,
+                    "rooms": 1
+                }
+            ]
+        },
+        {
+            "day": 2,
+            "activities": [
+                {
+                    "position": "Qiuguo S Hotel (Beijing Capital Airport Second Branch)",
+                    "type": "breakfast",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "08:00",
+                    "end_time": "08:30",
+                    "transports": []
+                },
+                {
+                    "position": "Double Happiness Phoenix Pavilion · Premium Selection (Beijing Universal CityWalk Store)",
+                    "type": "lunch",
+                    "price": 95,
+                    "cost": 95,
+                    "start_time": "11:00",
+                    "end_time": "12:00",
+                    "transports": [
+                        {
+                            "start": "Qiuguo S Hotel (Beijing Capital Airport Second Branch)",
+                            "end": "Terminal 2-Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:30",
+                            "end_time": "08:53",
+                            "cost": 0,
+                            "distance": 1.96,
+                            "price": 0
+                        },
+                        {
+                            "start": "Terminal 2-Metro Station",
+                            "end": "Universal Resort-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:53",
+                            "end_time": "09:46",
+                            "cost": 6,
+                            "distance": 26.6,
+                            "price": 6,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Universal Resort-Metro Station",
+                            "end": "Double Happiness Phoenix Pavilion · Premium Selection (Beijing Universal CityWalk Store)",
+                            "mode": "walk",
+                            "start_time": "09:46",
+                            "end_time": "09:49",
+                            "cost": 0,
+                            "distance": 0.3,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Beijing Fang",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "12:56",
+                    "end_time": "14:26",
+                    "transports": [
+                        {
+                            "start": "Double Happiness Phoenix Pavilion · Premium Selection (Beijing Universal CityWalk Store)",
+                            "end": "Universal Resort-Metro Station",
+                            "mode": "walk",
+                            "start_time": "12:00",
+                            "end_time": "12:03",
+                            "cost": 0,
+                            "distance": 0.3,
+                            "price": 0
+                        },
+                        {
+                            "start": "Universal Resort-Metro Station",
+                            "end": "Tiananmen East-Metro Station",
+                            "mode": "metro",
+                            "start_time": "12:03",
+                            "end_time": "12:52",
+                            "cost": 6,
+                            "distance": 24.65,
+                            "price": 6,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Tiananmen East-Metro Station",
+                            "end": "Beijing Fang",
+                            "mode": "walk",
+                            "start_time": "12:52",
+                            "end_time": "12:56",
+                            "cost": 0,
+                            "distance": 0.4,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 1
+                },
+                {
+                    "position": "Berry Beans (Qianmen Branch)",
+                    "type": "dinner",
+                    "price": 66,
+                    "cost": 66,
+                    "start_time": "17:00",
+                    "end_time": "18:00",
+                    "transports": [
+                        {
+                            "start": "Beijing Fang",
+                            "end": "Tiananmen East-Metro Station",
+                            "mode": "walk",
+                            "start_time": "14:26",
+                            "end_time": "14:30",
+                            "cost": 0,
+                            "distance": 0.4,
+                            "price": 0
+                        },
+                        {
+                            "start": "Tiananmen East-Metro Station",
+                            "end": "Zhushikou-Metro Station",
+                            "mode": "metro",
+                            "start_time": "14:30",
+                            "end_time": "14:33",
+                            "cost": 2,
+                            "distance": 1.84,
+                            "price": 2,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Zhushikou-Metro Station",
+                            "end": "Berry Beans (Qianmen Branch)",
+                            "mode": "walk",
+                            "start_time": "14:33",
+                            "end_time": "14:40",
+                            "cost": 0,
+                            "distance": 0.62,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "The Place",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "18:22",
+                    "end_time": "19:52",
+                    "transports": [
+                        {
+                            "start": "Berry Beans (Qianmen Branch)",
+                            "end": "Zhushikou-Metro Station",
+                            "mode": "walk",
+                            "start_time": "18:00",
+                            "end_time": "18:07",
+                            "cost": 0,
+                            "distance": 0.62,
+                            "price": 0
+                        },
+                        {
+                            "start": "Zhushikou-Metro Station",
+                            "end": "Hujialou-Metro Station",
+                            "mode": "metro",
+                            "start_time": "18:07",
+                            "end_time": "18:19",
+                            "cost": 3,
+                            "distance": 6.47,
+                            "price": 3,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Hujialou-Metro Station",
+                            "end": "The Place",
+                            "mode": "walk",
+                            "start_time": "18:19",
+                            "end_time": "18:22",
+                            "cost": 0,
+                            "distance": 0.29,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 1
+                },
+                {
+                    "position": "Luo Hong Photography Art Museum",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "20:18",
+                    "end_time": "21:00",
+                    "transports": [
+                        {
+                            "start": "The Place",
+                            "end": "Luo Hong Photography Art Museum",
+                            "mode": "taxi",
+                            "start_time": "19:52",
+                            "end_time": "20:18",
+                            "cost": 73.54,
+                            "distance": 17.52,
+                            "price": 73.54,
+                            "cars": 1
+                        }
+                    ],
+                    "tickets": 1
+                },
+                {
+                    "position": "Qiuguo S Hotel (Beijing Capital Airport Second Branch)",
+                    "type": "accommodation",
+                    "price": 319,
+                    "cost": 319,
+                    "start_time": "22:05",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "Luo Hong Photography Art Museum",
+                            "end": "Terminal 3-Metro Station",
+                            "mode": "walk",
+                            "start_time": "21:00",
+                            "end_time": "21:35",
+                            "cost": 0,
+                            "distance": 2.99,
+                            "price": 0
+                        },
+                        {
+                            "start": "Terminal 3-Metro Station",
+                            "end": "Terminal 2-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:35",
+                            "end_time": "21:42",
+                            "cost": 2,
+                            "distance": 3.54,
+                            "price": 2,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Terminal 2-Metro Station",
+                            "end": "Qiuguo S Hotel (Beijing Capital Airport Second Branch)",
+                            "mode": "walk",
+                            "start_time": "21:42",
+                            "end_time": "22:05",
+                            "cost": 0,
+                            "distance": 1.96,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 1,
+                    "rooms": 1
+                }
+            ]
+        },
+        {
+            "day": 3,
+            "activities": [
+                {
+                    "start_time": "13:10",
+                    "end_time": "23:09",
+                    "start": "Beijing West Railway Station",
+                    "end": "Guangzhou South Railway Station",
+                    "price": 1227.58,
+                    "cost": 1227.58,
+                    "tickets": 1,
+                    "transports": [
+                        {
+                            "start": "Qiuguo S Hotel (Beijing Capital Airport Second Branch)",
+                            "end": "Terminal 2-Metro Station",
+                            "mode": "walk",
+                            "start_time": "00:00",
+                            "end_time": "00:23",
+                            "cost": 0,
+                            "distance": 1.96,
+                            "price": 0
+                        },
+                        {
+                            "start": "Terminal 2-Metro Station",
+                            "end": "Beijing West Railway Station-Metro Station",
+                            "mode": "metro",
+                            "start_time": "00:23",
+                            "end_time": "01:24",
+                            "cost": 7,
+                            "distance": 30.96,
+                            "price": 7,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Beijing West Railway Station-Metro Station",
+                            "end": "Beijing West Railway Station",
+                            "mode": "walk",
+                            "start_time": "01:24",
+                            "end_time": "01:24",
+                            "cost": 0,
+                            "distance": 0.08,
+                            "price": 0
+                        }
+                    ],
+                    "TrainID": "G339",
+                    "type": "train"
+                }
+            ]
+        }
+    ],
+    "search_time_sec": 281.1349265575409,
+    "llm_inference_time_sec": 187.5164806842804
+}

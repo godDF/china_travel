@@ -1,0 +1,670 @@
+{
+    "people_number": 3,
+    "start_city": "Wuhan",
+    "target_city": "Chongqing",
+    "itinerary": [
+        {
+            "day": 1,
+            "activities": [
+                {
+                    "start_time": "07:35",
+                    "end_time": "14:40",
+                    "start": "Wuhan Station",
+                    "end": "Chongqing North Railway Station",
+                    "price": 452.8,
+                    "cost": 1358.4,
+                    "tickets": 3,
+                    "transports": [],
+                    "TrainID": "D367",
+                    "type": "train"
+                },
+                {
+                    "position": "Yachao Capsule Apartment",
+                    "type": "accommodation",
+                    "price": 31,
+                    "cost": 62,
+                    "start_time": "14:59",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "Chongqing North Railway Station",
+                            "end": "Chongqing North Station South Square-Metro Station",
+                            "mode": "walk",
+                            "start_time": "14:40",
+                            "end_time": "14:43",
+                            "cost": 0,
+                            "distance": 0.27,
+                            "price": 0
+                        },
+                        {
+                            "start": "Chongqing North Station South Square-Metro Station",
+                            "end": "Xiaoshizi-Metro Station",
+                            "mode": "metro",
+                            "start_time": "14:43",
+                            "end_time": "14:55",
+                            "cost": 9,
+                            "distance": 6.15,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Xiaoshizi-Metro Station",
+                            "end": "Yachao Capsule Apartment",
+                            "mode": "walk",
+                            "start_time": "14:55",
+                            "end_time": "14:59",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 2,
+                    "rooms": 2
+                }
+            ]
+        },
+        {
+            "day": 2,
+            "activities": [
+                {
+                    "position": "Yachao Capsule Apartment",
+                    "type": "breakfast",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "08:00",
+                    "end_time": "08:30",
+                    "transports": []
+                },
+                {
+                    "position": "Chongqing Happy Valley",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "09:30",
+                    "end_time": "11:00",
+                    "transports": [
+                        {
+                            "start": "Yachao Capsule Apartment",
+                            "end": "Xiaoshizi-Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:30",
+                            "end_time": "08:34",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        },
+                        {
+                            "start": "Xiaoshizi-Metro Station",
+                            "end": "Huangmaoping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:34",
+                            "end_time": "09:01",
+                            "cost": 12,
+                            "distance": 13.83,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Huangmaoping-Metro Station",
+                            "end": "Chongqing Happy Valley",
+                            "mode": "walk",
+                            "start_time": "09:01",
+                            "end_time": "09:13",
+                            "cost": 0,
+                            "distance": 1.08,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Three-Step Ladder Old Hotpot - Authentic Chongqing Flavor",
+                    "type": "lunch",
+                    "price": 93,
+                    "cost": 279,
+                    "start_time": "11:40",
+                    "end_time": "12:40",
+                    "transports": [
+                        {
+                            "start": "Chongqing Happy Valley",
+                            "end": "Huangmaoping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "11:00",
+                            "end_time": "11:12",
+                            "cost": 0,
+                            "distance": 1.08,
+                            "price": 0
+                        },
+                        {
+                            "start": "Huangmaoping-Metro Station",
+                            "end": "Hongqi River Ditch-Metro Station",
+                            "mode": "metro",
+                            "start_time": "11:12",
+                            "end_time": "11:32",
+                            "cost": 12,
+                            "distance": 10.08,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Hongqi River Ditch-Metro Station",
+                            "end": "Three-Step Ladder Old Hotpot - Authentic Chongqing Flavor",
+                            "mode": "walk",
+                            "start_time": "11:32",
+                            "end_time": "11:40",
+                            "cost": 0,
+                            "distance": 0.7,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Yangtze River Cableway",
+                    "type": "attraction",
+                    "price": 20,
+                    "cost": 60,
+                    "start_time": "13:03",
+                    "end_time": "14:33",
+                    "transports": [
+                        {
+                            "start": "Three-Step Ladder Old Hotpot - Authentic Chongqing Flavor",
+                            "end": "Hongqi River Ditch-Metro Station",
+                            "mode": "walk",
+                            "start_time": "12:40",
+                            "end_time": "12:48",
+                            "cost": 0,
+                            "distance": 0.7,
+                            "price": 0
+                        },
+                        {
+                            "start": "Hongqi River Ditch-Metro Station",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "12:48",
+                            "end_time": "13:00",
+                            "cost": 9,
+                            "distance": 6.29,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Yangtze River Cableway",
+                            "mode": "walk",
+                            "start_time": "13:00",
+                            "end_time": "13:03",
+                            "cost": 0,
+                            "distance": 0.33,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Gray Whale Restaurant (IFS Store)",
+                    "type": "dinner",
+                    "price": 153,
+                    "cost": 459,
+                    "start_time": "17:00",
+                    "end_time": "18:00",
+                    "transports": [
+                        {
+                            "start": "Yangtze River Cableway",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "14:33",
+                            "end_time": "14:36",
+                            "cost": 0,
+                            "distance": 0.33,
+                            "price": 0
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Jiangbei City-Metro Station",
+                            "mode": "metro",
+                            "start_time": "14:36",
+                            "end_time": "14:39",
+                            "cost": 6,
+                            "distance": 1.82,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Jiangbei City-Metro Station",
+                            "end": "Gray Whale Restaurant (IFS Store)",
+                            "mode": "walk",
+                            "start_time": "14:39",
+                            "end_time": "14:40",
+                            "cost": 0,
+                            "distance": 0.11,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Chongqing Two Rivers Cruise",
+                    "type": "attraction",
+                    "price": 138,
+                    "cost": 414,
+                    "start_time": "18:09",
+                    "end_time": "19:39",
+                    "transports": [
+                        {
+                            "start": "Gray Whale Restaurant (IFS Store)",
+                            "end": "Jiangbei City-Metro Station",
+                            "mode": "walk",
+                            "start_time": "18:00",
+                            "end_time": "18:01",
+                            "cost": 0,
+                            "distance": 0.11,
+                            "price": 0
+                        },
+                        {
+                            "start": "Jiangbei City-Metro Station",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "18:01",
+                            "end_time": "18:04",
+                            "cost": 6,
+                            "distance": 1.82,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Chongqing Two Rivers Cruise",
+                            "mode": "walk",
+                            "start_time": "18:04",
+                            "end_time": "18:09",
+                            "cost": 0,
+                            "distance": 0.49,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Ronghui Xiliutuo Town",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "19:56",
+                    "end_time": "21:26",
+                    "transports": [
+                        {
+                            "start": "Chongqing Two Rivers Cruise",
+                            "end": "Ronghui Xiliutuo Town",
+                            "mode": "taxi",
+                            "start_time": "19:39",
+                            "end_time": "19:56",
+                            "cost": 46.12,
+                            "distance": 11.43,
+                            "price": 46.12,
+                            "cars": 1
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Yachao Capsule Apartment",
+                    "type": "accommodation",
+                    "price": 31,
+                    "cost": 62,
+                    "start_time": "22:12",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "Ronghui Xiliutuo Town",
+                            "end": "Lijiatuo Bridge-Metro Station",
+                            "mode": "walk",
+                            "start_time": "21:26",
+                            "end_time": "21:46",
+                            "cost": 0,
+                            "distance": 1.74,
+                            "price": 0
+                        },
+                        {
+                            "start": "Lijiatuo Bridge-Metro Station",
+                            "end": "Xiaoshizi-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:46",
+                            "end_time": "22:08",
+                            "cost": 12,
+                            "distance": 11.47,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Xiaoshizi-Metro Station",
+                            "end": "Yachao Capsule Apartment",
+                            "mode": "walk",
+                            "start_time": "22:08",
+                            "end_time": "22:12",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 2,
+                    "rooms": 2
+                }
+            ]
+        },
+        {
+            "day": 3,
+            "activities": [
+                {
+                    "position": "Yachao Capsule Apartment",
+                    "type": "breakfast",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "08:00",
+                    "end_time": "08:30",
+                    "transports": []
+                },
+                {
+                    "position": "Sulky Beef · Beef Hot Pot (Guanyinqiao Sunshine Century Store)",
+                    "type": "lunch",
+                    "price": 88,
+                    "cost": 264,
+                    "start_time": "11:00",
+                    "end_time": "12:00",
+                    "transports": [
+                        {
+                            "start": "Yachao Capsule Apartment",
+                            "end": "Xiaoshizi-Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:30",
+                            "end_time": "08:34",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        },
+                        {
+                            "start": "Xiaoshizi-Metro Station",
+                            "end": "Guanyinqiao-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:34",
+                            "end_time": "08:44",
+                            "cost": 9,
+                            "distance": 5.17,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Guanyinqiao-Metro Station",
+                            "end": "Sulky Beef · Beef Hot Pot (Guanyinqiao Sunshine Century Store)",
+                            "mode": "walk",
+                            "start_time": "08:44",
+                            "end_time": "08:49",
+                            "cost": 0,
+                            "distance": 0.42,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Chongqing Zoo",
+                    "type": "attraction",
+                    "price": 24,
+                    "cost": 72,
+                    "start_time": "12:23",
+                    "end_time": "13:53",
+                    "transports": [
+                        {
+                            "start": "Sulky Beef · Beef Hot Pot (Guanyinqiao Sunshine Century Store)",
+                            "end": "Guanyinqiao-Metro Station",
+                            "mode": "walk",
+                            "start_time": "12:00",
+                            "end_time": "12:05",
+                            "cost": 0,
+                            "distance": 0.42,
+                            "price": 0
+                        },
+                        {
+                            "start": "Guanyinqiao-Metro Station",
+                            "end": "Yangjiaping-Metro Station",
+                            "mode": "metro",
+                            "start_time": "12:05",
+                            "end_time": "12:19",
+                            "cost": 9,
+                            "distance": 7.44,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Yangjiaping-Metro Station",
+                            "end": "Chongqing Zoo",
+                            "mode": "walk",
+                            "start_time": "12:19",
+                            "end_time": "12:23",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Chongqing International Trade Grandview Hotel - Grand Tea House",
+                    "type": "dinner",
+                    "price": 58,
+                    "cost": 174,
+                    "start_time": "17:00",
+                    "end_time": "18:00",
+                    "transports": [
+                        {
+                            "start": "Chongqing Zoo",
+                            "end": "Yangjiaping-Metro Station",
+                            "mode": "walk",
+                            "start_time": "13:53",
+                            "end_time": "13:57",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        },
+                        {
+                            "start": "Yangjiaping-Metro Station",
+                            "end": "Linjiangmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "13:57",
+                            "end_time": "14:12",
+                            "cost": 9,
+                            "distance": 7.95,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Linjiangmen-Metro Station",
+                            "end": "Chongqing International Trade Grandview Hotel - Grand Tea House",
+                            "mode": "walk",
+                            "start_time": "14:12",
+                            "end_time": "14:14",
+                            "cost": 0,
+                            "distance": 0.24,
+                            "price": 0
+                        }
+                    ]
+                },
+                {
+                    "position": "Chongqing Guotai Art Center",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "18:09",
+                    "end_time": "19:39",
+                    "transports": [
+                        {
+                            "start": "Chongqing International Trade Grandview Hotel - Grand Tea House",
+                            "end": "Linjiangmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "18:00",
+                            "end_time": "18:02",
+                            "cost": 0,
+                            "distance": 0.24,
+                            "price": 0
+                        },
+                        {
+                            "start": "Linjiangmen-Metro Station",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "metro",
+                            "start_time": "18:02",
+                            "end_time": "18:05",
+                            "cost": 6,
+                            "distance": 1.55,
+                            "price": 2,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Chongqing Guotai Art Center",
+                            "mode": "walk",
+                            "start_time": "18:05",
+                            "end_time": "18:09",
+                            "cost": 0,
+                            "distance": 0.37,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Babin Water World",
+                    "type": "attraction",
+                    "price": 0,
+                    "cost": 0,
+                    "start_time": "20:12",
+                    "end_time": "21:42",
+                    "transports": [
+                        {
+                            "start": "Chongqing Guotai Art Center",
+                            "end": "Chaotianmen-Metro Station",
+                            "mode": "walk",
+                            "start_time": "19:39",
+                            "end_time": "19:43",
+                            "cost": 0,
+                            "distance": 0.37,
+                            "price": 0
+                        },
+                        {
+                            "start": "Chaotianmen-Metro Station",
+                            "end": "Power Plant-Metro Station",
+                            "mode": "metro",
+                            "start_time": "19:43",
+                            "end_time": "20:03",
+                            "cost": 12,
+                            "distance": 10.44,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Power Plant-Metro Station",
+                            "end": "Babin Water World",
+                            "mode": "walk",
+                            "start_time": "20:03",
+                            "end_time": "20:12",
+                            "cost": 0,
+                            "distance": 0.77,
+                            "price": 0
+                        }
+                    ],
+                    "tickets": 3
+                },
+                {
+                    "position": "Yachao Capsule Apartment",
+                    "type": "accommodation",
+                    "price": 31,
+                    "cost": 62,
+                    "start_time": "22:14",
+                    "end_time": "24:00",
+                    "transports": [
+                        {
+                            "start": "Babin Water World",
+                            "end": "Power Plant-Metro Station",
+                            "mode": "walk",
+                            "start_time": "21:42",
+                            "end_time": "21:51",
+                            "cost": 0,
+                            "distance": 0.77,
+                            "price": 0
+                        },
+                        {
+                            "start": "Power Plant-Metro Station",
+                            "end": "Xiaoshizi-Metro Station",
+                            "mode": "metro",
+                            "start_time": "21:51",
+                            "end_time": "22:10",
+                            "cost": 12,
+                            "distance": 9.65,
+                            "price": 4,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Xiaoshizi-Metro Station",
+                            "end": "Yachao Capsule Apartment",
+                            "mode": "walk",
+                            "start_time": "22:10",
+                            "end_time": "22:14",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        }
+                    ],
+                    "room_type": 2,
+                    "rooms": 2
+                }
+            ]
+        },
+        {
+            "day": 4,
+            "activities": [
+                {
+                    "start_time": "06:03",
+                    "end_time": "12:35",
+                    "start": "Chongqing North Railway Station",
+                    "end": "Wuhan Station",
+                    "price": 452.8,
+                    "cost": 1358.4,
+                    "tickets": 3,
+                    "transports": [
+                        {
+                            "start": "Yachao Capsule Apartment",
+                            "end": "Xiaoshizi-Metro Station",
+                            "mode": "walk",
+                            "start_time": "00:00",
+                            "end_time": "00:04",
+                            "cost": 0,
+                            "distance": 0.35,
+                            "price": 0
+                        },
+                        {
+                            "start": "Xiaoshizi-Metro Station",
+                            "end": "Chongqing North Station South Square-Metro Station",
+                            "mode": "metro",
+                            "start_time": "00:04",
+                            "end_time": "00:16",
+                            "cost": 9,
+                            "distance": 6.15,
+                            "price": 3,
+                            "tickets": 3
+                        },
+                        {
+                            "start": "Chongqing North Station South Square-Metro Station",
+                            "end": "Chongqing North Railway Station",
+                            "mode": "walk",
+                            "start_time": "00:16",
+                            "end_time": "00:19",
+                            "cost": 0,
+                            "distance": 0.27,
+                            "price": 0
+                        }
+                    ],
+                    "TrainID": "D2378",
+                    "type": "train"
+                }
+            ]
+        }
+    ],
+    "search_time_sec": 149.30544114112854,
+    "llm_inference_time_sec": 52.68156147003174
+}

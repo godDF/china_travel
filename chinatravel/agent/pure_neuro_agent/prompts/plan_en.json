@@ -1,0 +1,511 @@
+{
+    "people_number": 1,
+    "start_city": "Beijing",
+    "target_city": "Nanjing",
+    "itinerary": [
+        {
+            "day": 1,
+            "activities": [
+                {
+                    "start_time": "07:16",
+                    "end_time": "08:23",
+                    "start": "Beijing Capital International Airport",
+                    "end": "Nanjing Lukou International Airport",
+                    "price": 448.38,
+                    "cost": 448.38,
+                    "FlightID": "FL159",
+                    "type": "airplane",
+                    "tickets": 1,
+                    "transports": []
+                },
+                {
+                    "position": "Ming Xiaoling Mausoleum",
+                    "type": "attraction",
+                    "transports": [
+                        {
+                            "start": "Nanjing Lukou International Airport",
+                            "end": "Lukou Airport Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:23",
+                            "end_time": "08:26",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.27
+                        },
+                        {
+                            "start": "Lukou Airport Metro Station",
+                            "end": "Muxuyuan Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:26",
+                            "end_time": "09:35",
+                            "price": 7,
+                            "cost": 7,
+                            "distance": 34.56,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Muxuyuan Metro Station",
+                            "end": "Ming Xiaoling Mausoleum",
+                            "mode": "walk",
+                            "start_time": "09:35",
+                            "end_time": "09:52",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 1.48
+                        }
+                    ],
+                    "price": 65.0,
+                    "cost": 65.0,
+                    "tickets": 1,
+                    "start_time": "10:00",
+                    "end_time": "11:20"
+                },
+                {
+                    "position": "Carp Courtyard (Confucius Temple Branch)",
+                    "type": "lunch",
+                    "transports": [
+                        {
+                            "start": "Ming Xiaoling Mausoleum",
+                            "end": "Muxuyuan Metro Station",
+                            "mode": "walk",
+                            "start_time": "11:20",
+                            "end_time": "11:37",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 1.48
+                        },
+                        {
+                            "start": "Muxuyuan Metro Station",
+                            "end": "Sanshan Street-Metro Station",
+                            "mode": "metro",
+                            "start_time": "11:37",
+                            "end_time": "11:47",
+                            "price": 3,
+                            "cost": 3,
+                            "distance": 5.42,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Sanshan Street-Metro Station",
+                            "end": "Carp Courtyard (Confucius Temple Branch)",
+                            "mode": "walk",
+                            "start_time": "11:47",
+                            "end_time": "11:50",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.33
+                        }
+                    ],
+                    "price": 499,
+                    "cost": 499,
+                    "start_time": "12:00",
+                    "end_time": "12:50"
+                },
+                {
+                    "position": "Lion Mountain Scenic Area",
+                    "type": "attraction",
+                    "transports": [
+                        {
+                            "start": "Carp Courtyard (Confucius Temple Branch)",
+                            "end": "Sanshan Street-Metro Station",
+                            "mode": "walk",
+                            "start_time": "12:50",
+                            "end_time": "12:53",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.33
+                        },
+                        {
+                            "start": "Sanshan Street-Metro Station",
+                            "end": "Mufu West Road Metro Station",
+                            "mode": "metro",
+                            "start_time": "12:53",
+                            "end_time": "13:11",
+                            "price": 4,
+                            "cost": 4,
+                            "distance": 9.22,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Mufu West Road Metro Station",
+                            "end": "Lion Mountain Scenic Area",
+                            "mode": "walk",
+                            "start_time": "13:11",
+                            "end_time": "13:30",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 1.63
+                        }
+                    ],
+                    "price": 0,
+                    "cost": 0,
+                    "tickets": 1,
+                    "start_time": "13:40",
+                    "end_time": "15:00"
+                },
+                {
+                    "position": "Qinhuai River",
+                    "type": "attraction",
+                    "transports": [
+                        {
+                            "start": "Lion Mountain Scenic Area",
+                            "end": "Mufu West Road Metro Station",
+                            "mode": "walk",
+                            "start_time": "15:00",
+                            "end_time": "15:19",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 1.63
+                        },
+                        {
+                            "start": "Mufu West Road Metro Station",
+                            "end": "Confucius Temple-Metro Station",
+                            "mode": "metro",
+                            "start_time": "15:19",
+                            "end_time": "15:37",
+                            "price": 4,
+                            "cost": 4,
+                            "distance": 9.23,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Confucius Temple-Metro Station",
+                            "end": "Qinhuai River",
+                            "mode": "walk",
+                            "start_time": "15:37",
+                            "end_time": "15:46",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.75
+                        }
+                    ],
+                    "price": 0,
+                    "cost": 0,
+                    "tickets": 1,
+                    "start_time": "15:50",
+                    "end_time": "17:10"
+                },
+                {
+                    "position": "Jinling Hotel",
+                    "type": "accommodation",
+                    "transports": [
+                        {
+                            "start": "Qinhuai River",
+                            "end": "Confucius Temple-Metro Station",
+                            "mode": "walk",
+                            "start_time": "17:10",
+                            "end_time": "17:19",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.75
+                        },
+                        {
+                            "start": "Confucius Temple-Metro Station",
+                            "end": "Xinjiekou Metro Station",
+                            "mode": "metro",
+                            "start_time": "17:19",
+                            "end_time": "17:23",
+                            "price": 2,
+                            "cost": 2,
+                            "distance": 2.06,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Xinjiekou Metro Station",
+                            "end": "Jinling Hotel",
+                            "mode": "walk",
+                            "start_time": "17:23",
+                            "end_time": "17:24",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.14
+                        }
+                    ],
+                    "room_type": 2,
+                    "price": 680,
+                    "cost": 680,
+                    "start_time": "17:30",
+                    "end_time": "24:00",
+                    "rooms": 1
+                }
+            ]
+        },
+        {
+            "day": 2,
+            "activities": [
+                {
+                    "position": "Nanjing Presidential Palace",
+                    "type": "attraction",
+                    "transports": [
+                        {
+                            "start": "Jinling Hotel",
+                            "end": "Xinjiekou Metro Station",
+                            "mode": "walk",
+                            "start_time": "08:00",
+                            "end_time": "08:01",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.14
+                        },
+                        {
+                            "start": "Xinjiekou Metro Station",
+                            "end": "Floating Bridge-Metro Station",
+                            "mode": "metro",
+                            "start_time": "08:01",
+                            "end_time": "08:03",
+                            "price": 2,
+                            "cost": 2,
+                            "distance": 1.36,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Floating Bridge-Metro Station",
+                            "end": "Nanjing Presidential Palace",
+                            "mode": "walk",
+                            "start_time": "08:03",
+                            "end_time": "08:12",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.76
+                        }
+                    ],
+                    "price": 0,
+                    "cost": 0,
+                    "tickets": 1,
+                    "start_time": "08:20",
+                    "end_time": "09:40"
+                },
+                {
+                    "position": "Nanjing Museum",
+                    "type": "attraction",
+                    "transports": [
+                        {
+                            "start": "Nanjing Presidential Palace",
+                            "end": "Floating Bridge-Metro Station",
+                            "mode": "walk",
+                            "start_time": "09:40",
+                            "end_time": "09:49",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.76
+                        },
+                        {
+                            "start": "Floating Bridge-Metro Station",
+                            "end": "Muxuyuan Metro Station",
+                            "mode": "metro",
+                            "start_time": "09:49",
+                            "end_time": "09:56",
+                            "price": 2,
+                            "cost": 2,
+                            "distance": 3.82,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Muxuyuan Metro Station",
+                            "end": "Nanjing Museum",
+                            "mode": "walk",
+                            "start_time": "09:56",
+                            "end_time": "10:05",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.81
+                        }
+                    ],
+                    "price": 0,
+                    "cost": 0,
+                    "tickets": 1,
+                    "start_time": "10:10",
+                    "end_time": "11:30"
+                },
+                {
+                    "position": "Nanjing Grand Restaurant (Laomendong Branch)",
+                    "type": "lunch",
+                    "transports": [
+                        {
+                            "start": "Nanjing Museum",
+                            "end": "Muxuyuan Metro Station",
+                            "mode": "walk",
+                            "start_time": "11:30",
+                            "end_time": "11:39",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.81
+                        },
+                        {
+                            "start": "Muxuyuan Metro Station",
+                            "end": "Wudingmen Metro Station",
+                            "mode": "metro",
+                            "start_time": "11:39",
+                            "end_time": "11:48",
+                            "price": 3,
+                            "cost": 3,
+                            "distance": 4.84,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Wudingmen Metro Station",
+                            "end": "Nanjing Grand Restaurant (Laomendong Branch)",
+                            "mode": "walk",
+                            "start_time": "11:48",
+                            "end_time": "11:57",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.83
+                        }
+                    ],
+                    "price": 78,
+                    "cost": 78,
+                    "start_time": "12:00",
+                    "end_time": "12:50"
+                },
+                {
+                    "position": "Confucius Temple",
+                    "type": "attraction",
+                    "transports": [
+                        {
+                            "start": "Nanjing Grand Restaurant (Laomendong Branch)",
+                            "end": "Wudingmen Metro Station",
+                            "mode": "walk",
+                            "start_time": "12:50",
+                            "end_time": "12:59",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.83
+                        },
+                        {
+                            "start": "Wudingmen Metro Station",
+                            "end": "Confucius Temple-Metro Station",
+                            "mode": "metro",
+                            "start_time": "12:59",
+                            "end_time": "13:01",
+                            "price": 2,
+                            "cost": 2,
+                            "distance": 1.2,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Confucius Temple-Metro Station",
+                            "end": "Confucius Temple",
+                            "mode": "walk",
+                            "start_time": "13:01",
+                            "end_time": "13:07",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.52
+                        }
+                    ],
+                    "price": 0,
+                    "cost": 0,
+                    "tickets": 1,
+                    "start_time": "13:10",
+                    "end_time": "14:30"
+                },
+                {
+                    "position": "Laomendong Historical Block",
+                    "type": "attraction",
+                    "transports": [
+                        {
+                            "start": "Confucius Temple",
+                            "end": "Confucius Temple-Metro Station",
+                            "mode": "walk",
+                            "start_time": "14:30",
+                            "end_time": "14:36",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.52
+                        },
+                        {
+                            "start": "Confucius Temple-Metro Station",
+                            "end": "Wudingmen Metro Station",
+                            "mode": "metro",
+                            "start_time": "14:36",
+                            "end_time": "14:38",
+                            "price": 2,
+                            "cost": 2,
+                            "distance": 1.2,
+                            "tickets": 1
+                        },
+                        {
+                            "start": "Wudingmen Metro Station",
+                            "end": "Laomendong Historical Block",
+                            "mode": "walk",
+                            "start_time": "14:38",
+                            "end_time": "14:43",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.47
+                        }
+                    ],
+                    "price": 0,
+                    "cost": 0,
+                    "tickets": 1,
+                    "start_time": "14:50",
+                    "end_time": "16:10"
+                },
+                {
+                    "position": "Jiang You Ji (Laomendong Branch)",
+                    "type": "dinner",
+                    "transports": [
+                        {
+                            "start": "Laomendong Historical Block",
+                            "end": "Jiang You Ji (Laomendong Branch)",
+                            "mode": "walk",
+                            "start_time": "16:10",
+                            "end_time": "16:21",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.97
+                        }
+                    ],
+                    "price": 25,
+                    "cost": 25,
+                    "start_time": "16:30",
+                    "end_time": "17:20"
+                },
+                {
+                    "start": "Nanjing South Railway Station",
+                    "end": "Beijing South Railway Station",
+                    "start_time": "20:02",
+                    "end_time": "23:18",
+                    "TrainID": "G28",
+                    "type": "train",
+                    "transports": [
+                        {
+                            "start": "Jiang You Ji (Laomendong Branch)",
+                            "end": "Wudingmen Metro Station",
+                            "mode": "walk",
+                            "start_time": "17:20",
+                            "end_time": "17:29",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.77
+                        },
+                        {
+                            "start": "Wudingmen Metro Station",
+                            "end": "Nanjing South Station-Metro Station",
+                            "mode": "metro",
+                            "start_time": "17:29",
+                            "end_time": "17:38",
+                            "price": 3,
+                            "cost": 3,
+                            "distance": 4.75
+                        },
+                        {
+                            "start": "Nanjing South Station-Metro Station",
+                            "end": "Nanjing South Railway Station",
+                            "mode": "walk",
+                            "start_time": "17:38",
+                            "end_time": "17:41",
+                            "price": 0,
+                            "cost": 0,
+                            "distance": 0.29
+                        }
+                    ],
+                    "price": 583.83,
+                    "cost": 583.83,
+                    "tickets": 1
+                }
+            ]
+        }
+    ]
+}
