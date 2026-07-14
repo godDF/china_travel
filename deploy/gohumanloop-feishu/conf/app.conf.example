@@ -1,0 +1,17 @@
+appname = gohumanloop-feishu
+httpport = 9800
+runmode = dev
+autorender = false
+copyrequestbody = true
+EnableDocs = true
+
+appid = REPLACE_WITH_FEISHU_APP_ID
+appsecret = REPLACE_WITH_FEISHU_APP_SECRET
+
+approve_template_id = REPLACE_WITH_APPROVAL_CODE
+info_template_id = REPLACE_WITH_APPROVAL_CODE
+
+creator_userid = REPLACE_WITH_OPEN_ID
+approver_userid = REPLACE_WITH_OPEN_ID
+
+datapath = ./data/gohumanloop.db

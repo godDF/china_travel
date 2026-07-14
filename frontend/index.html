@@ -98,6 +98,15 @@
             border: 1px solid #ef9a9a;
         }
 
+        .message.assistant.rag { background: #fff8e1; border: 1px solid #ffe082; max-width: 95%; }
+        .message.assistant.review { background: #fff3e0; border: 1px solid #ffcc80; max-width: 95%; }
+        .message.assistant.rejected { background: #ffebee; border: 1px solid #ef9a9a; color: #b71c1c; max-width: 95%; }
+        .message-sources { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,.1); font-size: 12px; }
+        .message-sources a { color: #5b21b6; display: block; margin-top: 4px; }
+        .quick-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .quick-actions button { border: 0; border-radius: 16px; padding: 7px 12px; cursor: pointer; background: #667eea; color: #fff; }
+        #admin-link { float: right; color: white; font-size: 12px; text-decoration: none; opacity: .9; }
+
         /* Progress Panel - floating card with spinner */
         #progress-panel {
             margin: 4px 0;
@@ -116,6 +125,25 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        #progress-panel.review-waiting {
+            background: #fff8e1;
+            border-color: #ffe082;
+        }
+
+        #progress-panel.review-waiting .title {
+            color: #ef6c00;
+        }
+
+        #progress-panel.review-waiting .spinner {
+            border-color: #ffe0b2;
+            border-top-color: #ef6c00;
+        }
+
+        #progress-panel .review-hint {
+            color: #795548;
+            line-height: 1.6;
         }
 
         /* Spinner */
@@ -319,6 +347,7 @@
 <body>
 <div id="app">
     <div id="header">
+        <a id="admin-link" href="/admin" target="_blank">管理员审核</a>
         ChinaTravel · AI 旅行规划助手
         <div class="subtitle">支持城市：北京 上海 南京 苏州 杭州 深圳 成都 武汉 广州 重庆</div>
     </div>
@@ -354,6 +383,7 @@ let isGenerating = false;
 let seenSteps = new Set();
 let progressPanelEl = null;
 let renderedPlanCount = 0;
+let lastReviewStatus = null;
 
 // ===== API Helpers =====
 async function api(path, method = 'GET', body = null) {
@@ -387,6 +417,7 @@ async function newChat() {
     isGenerating = false;
     seenSteps = new Set();
     renderedPlanCount = 0;
+    lastReviewStatus = null;
     document.getElementById('send-btn').disabled = false;
     document.getElementById('message-input').disabled = false;
     document.getElementById('messages').innerHTML = '';
@@ -422,15 +453,26 @@ async function sendMessage() {
             document.getElementById('send-btn').disabled = true;
             document.getElementById('message-input').disabled = true;
             // Create progress panel with spinner
-            createProgressPanel();
+            createProgressPanel(resp.sensitive === true);
             startPolling();
         } else if (resp.type === 'plan') {
             removeProgressPanel();
             addMessage('assistant', resp.message, 'plan');
         } else if (resp.type === 'confirmation') {
             addMessage('assistant', resp.message, 'confirmation');
+            addQuickActions([
+                ['确认并开始规划', '确认并开始规划'],
+            ]);
+        } else if (resp.type === 'rag') {
+            addRagMessage(resp.message, resp.sources || []);
+        } else if (resp.type === 'intent_choice') {
+            addMessage('assistant', resp.message, 'confirmation');
+            addQuickActions([['规则查询', '规则查询'], ['旅行方案制定', '旅行方案制定']]);
         } else {
             addMessage('assistant', resp.message);
+        }
+        if (resp.reset === true) {
+            resetClientRequestState();
         }
     } catch (e) {
         addMessage('assistant', '请求失败：' + e.message, 'error');
@@ -438,20 +480,45 @@ async function sendMessage() {
 }
 
 // ===== Progress Panel =====
-function createProgressPanel() {
+function createProgressPanel(sensitive = false) {
     removeProgressPanel();
     const div = document.createElement('div');
     div.id = 'progress-panel';
     div.innerHTML = `
         <div class="title">
             <span class="spinner"></span>
-            <span>正在生成旅行计划，请耐心等待...</span>
+            <span>${sensitive
+                ? '正在生成敏感旅行方案，完成后将自动提交人工审核...'
+                : '正在生成旅行计划，请耐心等待...'}</span>
         </div>
         <ul class="progress-steps"></ul>
     `;
     document.getElementById('messages').appendChild(div);
     document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
     progressPanelEl = div;
+}
+
+function showReviewWaitingPanel(message) {
+    if (!progressPanelEl) {
+        createProgressPanel(true);
+    }
+    progressPanelEl.classList.add('review-waiting');
+    progressPanelEl.querySelector('.title').innerHTML = `
+        <span class="spinner"></span>
+        <span>正在等待后台管理员审核...</span>
+    `;
+    const ul = progressPanelEl.querySelector('.progress-steps');
+    if (ul) ul.innerHTML = '';
+    const thoughtEl = progressPanelEl.querySelector('.thought-bubble');
+    if (thoughtEl) thoughtEl.remove();
+    let hint = progressPanelEl.querySelector('.review-hint');
+    if (!hint) {
+        hint = document.createElement('div');
+        hint.className = 'review-hint';
+        progressPanelEl.appendChild(hint);
+    }
+    hint.textContent = message || '方案已生成并提交人工审核，审核通过后将自动发布。';
+    scrollMessagesToBottom();
 }
 
 function updateProgressPanel(progress) {
@@ -514,6 +581,24 @@ function removeProgressPanel() {
     }
 }
 
+function resetClientRequestState() {
+    isGenerating = false;
+    seenSteps = new Set();
+    renderedPlanCount = 0;
+    lastReviewStatus = null;
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('message-input').disabled = false;
+}
+
+async function resetAfterTerminalResponse() {
+    try {
+        await api(`/api/sessions/${sessionId}/reset`, 'POST');
+    } catch (e) {
+        console.error('Session reset error:', e);
+    }
+    resetClientRequestState();
+}
+
 // ===== Poll for status =====
 function startPolling() {
     stopPolling();
@@ -544,6 +629,30 @@ function startPolling() {
                     addMessage('assistant', planMsg.content, 'plan', thoughts);
                     renderedPlanCount++;
                 }
+                await resetAfterTerminalResponse();
+            } else if (resp.state === 'pending_review') {
+                isGenerating = false;
+                document.getElementById('send-btn').disabled = false;
+                document.getElementById('message-input').disabled = false;
+                showReviewWaitingPanel(resp.review_message || '方案已生成并提交人工审核，审核通过后将自动发布。');
+                lastReviewStatus = 'pending';
+            } else if (resp.state === 'review_error') {
+                isGenerating = false;
+                document.getElementById('send-btn').disabled = false;
+                document.getElementById('message-input').disabled = false;
+                showReviewWaitingPanel(resp.review_message || '飞书审核暂时不可用，方案仍在等待本地管理员审核。');
+                lastReviewStatus = 'review_error';
+            } else if (resp.state === 'review_rejected') {
+                stopPolling();
+                isGenerating = false;
+                document.getElementById('send-btn').disabled = false;
+                document.getElementById('message-input').disabled = false;
+                removeProgressPanel();
+                if (lastReviewStatus !== 'rejected') {
+                    addMessage('assistant', `人工审核未通过\n拒绝原因：${resp.rejection_reason || '管理员未提供原因'}\n请修改需求后重新生成。`, 'rejected');
+                    lastReviewStatus = 'rejected';
+                }
+                await resetAfterTerminalResponse();
             } else if (resp.state === 'clarifying' && resp.messages.some(m => m.type === 'error')) {
                 stopPolling();
                 isGenerating = false;
@@ -555,6 +664,7 @@ function startPolling() {
                 if (errMsg) {
                     addMessage('assistant', errMsg.content, 'error', getThoughtTexts(resp.progress || []));
                 }
+                await resetAfterTerminalResponse();
             }
         } catch (e) {
             console.error('Poll error:', e);
@@ -574,6 +684,15 @@ function getThoughtTexts(progress) {
     return progress
         .filter(item => item.is_thought && item.detail)
         .map(item => item.detail.replace(/^Thought(?:\s+\d+)?\s*:\s*/i, '').trim());
+}
+
+function scrollMessagesToBottom() {
+    const messages = document.getElementById('messages');
+    // Wait until newly appended messages/actions have completed layout so the
+    // final buttons are included in scrollHeight.
+    requestAnimationFrame(() => {
+        messages.scrollTop = messages.scrollHeight;
+    });
 }
 
 function addMessage(role, content, cls = '', thoughts = []) {
@@ -601,7 +720,45 @@ function addMessage(role, content, cls = '', thoughts = []) {
     messageContent.textContent = content;
     div.appendChild(messageContent);
     document.getElementById('messages').appendChild(div);
-    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    scrollMessagesToBottom();
+}
+
+function addRagMessage(content, sources) {
+    addMessage('assistant', content, 'rag');
+    const messages = document.getElementById('messages');
+    const div = messages.lastElementChild;
+    if (!div || !sources.length) return;
+    const sourceBox = document.createElement('div');
+    sourceBox.className = 'message-sources';
+    sourceBox.textContent = '参考来源：';
+    sources.forEach((source) => {
+        const link = document.createElement('a');
+        link.href = source.source_url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = `${source.title || source.source_name}（更新：${source.updated_at || '未知'}）`;
+        sourceBox.appendChild(link);
+    });
+    div.appendChild(sourceBox);
+    scrollMessagesToBottom();
+}
+
+function addQuickActions(actions) {
+    const box = document.createElement('div');
+    box.className = 'quick-actions';
+    actions.forEach(([label, value]) => {
+        const button = document.createElement('button');
+        button.textContent = label;
+        button.onclick = () => sendPreset(value);
+        box.appendChild(button);
+    });
+    document.getElementById('messages').appendChild(box);
+    scrollMessagesToBottom();
+}
+
+function sendPreset(value) {
+    document.getElementById('message-input').value = value;
+    sendMessage();
 }
 
 // ===== Start =====

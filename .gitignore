@@ -15,5 +15,8 @@ your_tpc_scores.json
 uv.lock
 .venv
 .env
+data/reviews.sqlite3
+deploy/gohumanloop-feishu/conf/app.conf
+deploy/gohumanloop-feishu/data/
 agent_env/runs
 agent_env/config.toml

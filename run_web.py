@@ -13,6 +13,12 @@ import sys
 import os
 from dotenv import load_dotenv
 
+# Keep emoji and Chinese startup logs working in Windows terminals/background processes.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 # Add project root to path
 project_root = os.path.dirname(os.path.abspath(__file__))
 if project_root not in sys.path:

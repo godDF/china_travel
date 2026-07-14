@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ChinaTravel 人工审核后台</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;background:#f5f6fa;color:#222}
+    header{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+    header h1{font-size:20px;margin:0}.login{display:flex;gap:8px}.login input{padding:8px 12px;border:0;border-radius:6px}.login button,button{border:0;border-radius:6px;padding:8px 13px;cursor:pointer}
+    main{max-width:1280px;margin:20px auto;padding:0 20px}.filters{display:flex;gap:8px;margin-bottom:14px}.filters button.active{background:#4f46e5;color:#fff}
+    .layout{display:grid;grid-template-columns:380px 1fr;gap:16px}.panel{background:#fff;border-radius:10px;box-shadow:0 2px 10px #00000010;padding:16px;min-height:200px}
+    .item{position:relative;border:1px solid #e5e7eb;border-radius:8px;padding:12px 54px 12px 12px;margin-bottom:9px;cursor:pointer}.item:hover{border-color:#6366f1}.item strong{display:block}.meta{font-size:12px;color:#6b7280;margin-top:5px}.tag{display:inline-block;padding:2px 7px;border-radius:10px;background:#eef2ff;color:#4338ca;font-size:11px;margin-right:4px}
+    .delete-review{position:absolute;right:10px;top:10px;background:#fee2e2;color:#b91c1c;padding:5px 9px;font-size:12px}.delete-review:hover{background:#fecaca}
+    pre{white-space:pre-wrap;word-break:break-word;background:#f8fafc;padding:12px;border-radius:8px;max-height:430px;overflow:auto}.actions{display:flex;gap:8px;margin-top:14px}.approve{background:#16a34a;color:#fff}.reject{background:#dc2626;color:#fff}.reason{width:100%;min-height:76px;padding:9px;margin-top:10px;border:1px solid #d1d5db;border-radius:7px}
+    .empty{color:#6b7280;text-align:center;padding:40px 10px}.error{color:#b91c1c;margin:8px 0}@media(max-width:800px){.layout{grid-template-columns:1fr}.login input{width:150px}}
+  </style>
+</head>
+<body>
+<header><h1>ChinaTravel · 人工审核后台</h1><div class="login"><input id="token" type="password" placeholder="管理员 Token"><button onclick="login()">登录/刷新</button></div></header>
+<main>
+  <div class="filters" id="filters">
+    <button class="active" data-status="" onclick="filterReviews(this)">全部</button>
+    <button data-status="pending" onclick="filterReviews(this)">待审核</button>
+    <button data-status="approved" onclick="filterReviews(this)">已批准</button>
+    <button data-status="rejected" onclick="filterReviews(this)">已拒绝</button>
+  </div>
+  <div id="error" class="error"></div>
+  <div class="layout"><section class="panel" id="list"><div class="empty">请输入管理员 Token</div></section><section class="panel" id="detail"><div class="empty">选择一条审核记录查看详情</div></section></div>
+</main>
+<script>
+const defaultAdminToken='ChinaTravel-Admin-2026!';
+let token=sessionStorage.getItem('adminToken')||defaultAdminToken,statusFilter='',selected=null;
+document.getElementById('token').value=token;
+async function request(path,method='GET',body=null){const options={method,headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'}};if(body)options.body=JSON.stringify(body);const response=await fetch(path,options);const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.detail||'请求失败');return data}
+function login(){token=document.getElementById('token').value.trim();sessionStorage.setItem('adminToken',token);loadReviews()}
+function filterReviews(button){document.querySelectorAll('#filters button').forEach(b=>b.classList.remove('active'));button.classList.add('active');statusFilter=button.dataset.status;loadReviews()}
+async function loadReviews(){
+  try{
+    document.getElementById('error').textContent='';
+    const data=await request(`/api/admin/reviews${statusFilter?`?status=${statusFilter}`:''}`);
+    const list=document.getElementById('list');
+    if(!data.reviews.length){list.innerHTML='<div class="empty">暂无审核记录</div>';return}
+    list.innerHTML='';
+    data.reviews.forEach(r=>{
+      const item=document.createElement('div');
+      item.className='item';
+      item.onclick=()=>showReview(r.review_id);
+      item.innerHTML=`<strong>${escapeHtml(r.request_snapshot.target_city||'旅行方案')} · ${escapeHtml(r.status)}</strong><div>${(r.sensitive_reasons||[]).map(x=>`<span class="tag">${escapeHtml(x)}</span>`).join('')}</div><div class="meta">${escapeHtml(r.review_id)}<br>${escapeHtml(r.created_at)} · ${escapeHtml(r.review_channel)}</div>`;
+      if(r.status!=='pending'){
+        const deleteButton=document.createElement('button');
+        deleteButton.className='delete-review';
+        deleteButton.textContent='删除';
+        deleteButton.onclick=(event)=>{event.stopPropagation();deleteReview(r.review_id)};
+        item.appendChild(deleteButton);
+      }
+      list.appendChild(item);
+    })
+  }catch(e){document.getElementById('error').textContent=e.message}
+}
+async function showReview(id){try{selected=await request(`/api/admin/reviews/${id}`);const r=selected;document.getElementById('detail').innerHTML=`<h2>${escapeHtml(r.request_snapshot.target_city||'旅行方案')}审核</h2><div class="meta">状态：${escapeHtml(r.status)}　渠道：${escapeHtml(r.review_channel)}　创建：${escapeHtml(r.created_at)}</div><h3>敏感原因</h3><p>${(r.sensitive_reasons||[]).map(escapeHtml).join('、')}</p><h3>用户需求</h3><pre>${escapeHtml(JSON.stringify(r.request_snapshot,null,2))}</pre><h3>完整计划</h3><pre>${escapeHtml(JSON.stringify(r.plan_snapshot,null,2))}</pre>${r.reviewer_comment?`<h3>审核意见</h3><p>${escapeHtml(r.reviewer_comment)}</p>`:''}${r.status==='pending'?`<textarea id="reason" class="reason" placeholder="拒绝时必须填写原因；批准意见可选"></textarea><div class="actions"><button class="approve" onclick="decide('approve')">批准并发布</button><button class="reject" onclick="decide('reject')">拒绝</button></div>`:''}`}catch(e){document.getElementById('error').textContent=e.message}}
+async function decide(action){const reason=(document.getElementById('reason')?.value||'').trim();if(action==='reject'&&!reason){alert('拒绝原因不能为空');return}try{await request(`/api/admin/reviews/${selected.review_id}/${action}`,'POST',{reason});await loadReviews();await showReview(selected.review_id)}catch(e){alert(e.message)}}
+async function deleteReview(id){
+  if(!confirm('确认永久删除这条审核记录吗？删除后无法恢复。'))return;
+  try{
+    await request(`/api/admin/reviews/${id}`,'DELETE');
+    if(selected?.review_id===id){selected=null;document.getElementById('detail').innerHTML='<div class="empty">审核记录已删除</div>'}
+    await loadReviews();
+  }catch(e){alert(e.message)}
+}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+if(token)loadReviews();
+</script>
+</body>
+</html>

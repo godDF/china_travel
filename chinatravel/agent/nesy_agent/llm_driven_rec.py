@@ -34,6 +34,7 @@ from chinatravel.agent.nesy_agent.prompts import (
     INNERCITY_TRANSPORTS_SELECTION_INSTRUCTION,
 )
 from chinatravel.agent.nesy_agent.nesy_agent import NesyAgent
+from chinatravel.optimization import MIN_TOTAL_COST
 
 from chinatravel.data.load_datasets import load_query, load_json_file, save_json_file
 
@@ -250,6 +251,11 @@ class LLMDrivenAgent(NesyAgent):
 
     def ranking_attractions(self, plan, poi_plan, current_day, current_time, current_position, intercity_with_hotel_cost):
 
+        if self.optimization_goal == MIN_TOTAL_COST and self.cost_only_search:
+            return self._budget_aware_ranking(
+                [], self.memory["attractions"], "attraction", self.poi_candidate_width
+            )
+
         if self.ranking_attractions_flag:
             pass
         else:
@@ -317,6 +323,11 @@ class LLMDrivenAgent(NesyAgent):
         return ranking_idx
 
     def ranking_restaurants(self, plan, poi_plan, current_day, current_time, current_position, intercity_with_hotel_cost):
+
+        if self.optimization_goal == MIN_TOTAL_COST and self.cost_only_search:
+            return self._budget_aware_ranking(
+                [], self.memory["restaurants"], "restaurant", self.poi_candidate_width
+            )
 
         if self.ranking_restaurants_flag:
             pass

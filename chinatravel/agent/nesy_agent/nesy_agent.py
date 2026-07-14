@@ -40,6 +40,7 @@ from chinatravel.symbol_verification.preference import evaluate_preference_py
 from chinatravel.symbol_verification.concept_func import *
 from chinatravel.agent.nesy_agent.nl2sl_hybrid import nl2sl_reflect
 from copy import deepcopy
+from chinatravel.optimization import MIN_TOTAL_COST, rank_plans_by_total_cost
 
 
 class NesyAgent(BaseAgent):
@@ -79,6 +80,8 @@ class NesyAgent(BaseAgent):
         # necessarily the three closest to the user's budget.
         self.max_candidates = kwargs.get("max_candidates", 30)
         self.collected_plans = []
+        self.optimization_goal = kwargs.get("optimization_goal", "budget_fit")
+        self.cost_only_search = bool(kwargs.get("cost_only_search", False))
 
         # Failure diagnostics (populated during search, read by caller)
         self.failure_stats = {}
@@ -192,7 +195,7 @@ class NesyAgent(BaseAgent):
         return total
 
     def _select_output_plans(self, plans):
-        """Discard over-budget plans, then return the closest N from below."""
+        """Apply the final objective after enforcing the budget upper bound."""
         ranked = []
         for candidate in plans:
             plan = deepcopy(candidate)
@@ -200,8 +203,9 @@ class NesyAgent(BaseAgent):
             if self.required_budget is None or plan["_total_cost"] <= self.required_budget:
                 ranked.append(plan)
 
-        ranked.sort(key=lambda item: item["_total_cost"], reverse=True)
-        return ranked[:self.max_plans]
+        # Existing behavior: the largest feasible total is closest to budget.
+        # The new branch reverses only this final objective.
+        return rank_plans_by_total_cost(ranked, self.optimization_goal, self.max_plans)
 
     def _budget_aware_ranking(self, preference_ranking, data, category, limit=None):
         """Mix preference candidates with prices near a category budget.
@@ -215,6 +219,33 @@ class NesyAgent(BaseAgent):
         for index in all_indices:
             if index not in preference:
                 preference.append(index)
+
+        if self.optimization_goal == MIN_TOTAL_COST:
+            def cheapest_price(index):
+                try:
+                    return float(data.iloc[index]["price"])
+                except (TypeError, ValueError, KeyError):
+                    return 0.0
+
+            # Hotel candidates have already been grouped by hard-constraint
+            # score and price-ranked inside each group. Preserve that order.
+            if category == "hotel":
+                return preference[:limit] if limit is not None else preference
+
+            # Keep a small number of LLM-selected POIs in the pool so an
+            # explicitly requested place is not dropped merely for being more
+            # expensive. The remaining pool is filled with the cheapest rows;
+            # later constraint verification still decides feasibility.
+            if limit is None:
+                return sorted(all_indices, key=cheapest_price)
+            reserved = [int(index) for index in preference_ranking][:max(1, limit // 4)]
+            pool = list(reserved)
+            for index in sorted(all_indices, key=cheapest_price):
+                if index not in pool:
+                    pool.append(index)
+                if len(pool) >= limit:
+                    break
+            return sorted(pool, key=cheapest_price)
 
         budget = self.required_budget
         if budget is None:
@@ -250,8 +281,7 @@ class NesyAgent(BaseAgent):
                         return mixed
         return mixed
 
-    @staticmethod
-    def _prioritize_usable_return_times(ranking_back, back_info, query):
+    def _prioritize_usable_return_times(self, ranking_back, back_info, query):
         """Put usable last-day departures before early-morning services.
 
         LLM rankings can contradict their own explanation and place 07:xx
@@ -274,6 +304,12 @@ class NesyAgent(BaseAgent):
             original_position, row_index = item
             departure = minutes(back_info.iloc[row_index].get("BeginTime", ""))
             usable = 12 * 60 <= departure <= 20 * 60 + 30
+            if self.optimization_goal == MIN_TOTAL_COST:
+                try:
+                    cost = float(back_info.iloc[row_index].get("Cost", 0))
+                except (TypeError, ValueError):
+                    cost = 0.0
+                return (0 if usable else 1, cost, original_position)
             if usable:
                 return (0, abs(departure - 17 * 60), original_position)
             return (1, original_position, 0)
@@ -313,6 +349,10 @@ class NesyAgent(BaseAgent):
     def run(self, query, load_cache=False, oralce_translation=False, preference_search=False):
 
         self.preference_search = preference_search
+        # Translation cache files predate the Web-only structured fields. Keep
+        # the current request's budget available after loading cached NL2SL so
+        # min_total_cost does not need a second LLM extraction call.
+        structured_budget = query.get("budget")
         method_name = self.method + "_" + self.backbone_llm.name
         if oralce_translation:
             method_name = method_name + "_oracletranslation"
@@ -347,6 +387,8 @@ class NesyAgent(BaseAgent):
 
         if not oralce_translation:
             query = self.translate_nl2sl(query, load_cache=load_cache)
+        if structured_budget is not None:
+            query["budget"] = structured_budget
 
 
         succ, plan = self.symbolic_search(query)
@@ -911,11 +953,17 @@ class NesyAgent(BaseAgent):
         reranking_list = []
         if pass_maxx > 0:
             for p_i in range(pass_maxx, -1, -1):
-                for idx in ranking_go:
-                    if pass_num_list[idx] == p_i:
-                        reranking_list.append(idx)
+                group = [idx for idx in ranking_go if pass_num_list[idx] == p_i]
+                if self.optimization_goal == MIN_TOTAL_COST:
+                    group.sort(key=lambda idx: float(go_info.iloc[idx].get("Cost", 0) or 0))
+                reranking_list.extend(group)
         else:
             reranking_list = ranking_go
+            if self.optimization_goal == MIN_TOTAL_COST:
+                reranking_list = sorted(
+                    reranking_list,
+                    key=lambda idx: float(go_info.iloc[idx].get("Cost", 0) or 0),
+                )
 
         # print(reranking_list)
         # exit(0)
@@ -971,11 +1019,17 @@ class NesyAgent(BaseAgent):
         reranking_list = []
         if pass_maxx > 0:
             for p_i in range(pass_maxx, -1, -1):
-                for idx in ranking_back:
-                    if pass_num_list[idx] == p_i:
-                        reranking_list.append(idx)
+                group = [idx for idx in ranking_back if pass_num_list[idx] == p_i]
+                if self.optimization_goal == MIN_TOTAL_COST:
+                    group.sort(key=lambda idx: float(back_info.iloc[idx].get("Cost", 0) or 0))
+                reranking_list.extend(group)
         else:
             reranking_list = ranking_back
+            if self.optimization_goal == MIN_TOTAL_COST:
+                reranking_list = sorted(
+                    reranking_list,
+                    key=lambda idx: float(back_info.iloc[idx].get("Cost", 0) or 0),
+                )
 
         # print(reranking_list)
         # exit(0)
@@ -1032,11 +1086,17 @@ class NesyAgent(BaseAgent):
         reranking_list = []
         if pass_maxx > 0:
             for p_i in range(pass_maxx, -1, -1):
-                for idx in ranking_hotel:
-                    if pass_num_list[idx] == p_i:
-                        reranking_list.append(idx)
+                group = [idx for idx in ranking_hotel if pass_num_list[idx] == p_i]
+                if self.optimization_goal == MIN_TOTAL_COST:
+                    group.sort(key=lambda idx: float(hotel_info.iloc[idx].get("price", 0) or 0))
+                reranking_list.extend(group)
         else:
             reranking_list = ranking_hotel
+            if self.optimization_goal == MIN_TOTAL_COST:
+                reranking_list = sorted(
+                    reranking_list,
+                    key=lambda idx: float(hotel_info.iloc[idx].get("price", 0) or 0),
+                )
 
         # for r_i in reranking_list[:10]:
         #     print(hotel_info.iloc[r_i])
@@ -1917,14 +1977,26 @@ class NesyAgent(BaseAgent):
         self.least_plan_schema, self.least_plan_comm, self.least_plan_logic = None, None, None
         self.least_plan_logical_pass = -1
 
-        ranking_go = self.ranking_intercity_transport_go(go_info, query)
+        if self.optimization_goal == MIN_TOTAL_COST:
+            # The cheapest branch needs the full inventory ordered by verified
+            # constraints and price, not an LLM-generated Top-N list.
+            ranking_go = list(range(len(go_info)))
+        else:
+            ranking_go = self.ranking_intercity_transport_go(go_info, query)
         ranking_go = self.reranking_intercity_transport_go_with_constraints(
             ranking_go, go_info, query
         )
 
-        ranking_hotel = self.ranking_hotel(self.memory["accommodations"], query)
+        if self.optimization_goal == MIN_TOTAL_COST:
+            ranking_hotel = list(range(len(self.memory["accommodations"])))
+        else:
+            ranking_hotel = self.ranking_hotel(self.memory["accommodations"], query)
         query_room_number, query_room_type = self.decide_rooms(query)
-        self.required_budget = self.extract_budget(query)
+        if self.optimization_goal == MIN_TOTAL_COST and query.get("budget") is not None:
+            self.required_budget = query["budget"]
+            print("structured budget: ", self.required_budget)
+        else:
+            self.required_budget = self.extract_budget(query)
 
         ranking_hotel = self.reranking_hotel_with_constraints(
             ranking_hotel, self.memory["accommodations"], query, query_room_number
@@ -1933,7 +2005,10 @@ class NesyAgent(BaseAgent):
             ranking_hotel, self.memory["accommodations"], "hotel"
         )
 
-        self.innercity_transports_ranking_from_query = self.ranking_innercity_transport_from_query(query)
+        if self.optimization_goal == MIN_TOTAL_COST:
+            self.innercity_transports_ranking_from_query = ["walk", "metro", "taxi"]
+        else:
+            self.innercity_transports_ranking_from_query = self.ranking_innercity_transport_from_query(query)
         if self.inner_transport_width is not None:
             self.innercity_transports_ranking_from_query = (
                 self.innercity_transports_ranking_from_query[:self.inner_transport_width]
@@ -1954,9 +2029,12 @@ class NesyAgent(BaseAgent):
             poi_plan["go_transport"] = go_info_i
             self.search_nodes += 1
 
-            ranking_back = self.ranking_intercity_transport_back(
-                back_info, query, go_info_i
-            )
+            if self.optimization_goal == MIN_TOTAL_COST:
+                ranking_back = list(range(len(back_info)))
+            else:
+                ranking_back = self.ranking_intercity_transport_back(
+                    back_info, query, go_info_i
+                )
 
             ranking_back = self.reranking_intercity_transport_back_with_constraints(
                 ranking_back, back_info, query, go_info_i
