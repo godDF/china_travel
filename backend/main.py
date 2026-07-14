@@ -127,12 +127,7 @@ WORKFLOW_STEPS = [
     ("budget", r"extracted budget|Budget:", "提取预算限制"),
     ("attractions", r"ranking_attractions|AttractionNameList|selected attractions", "筛选景点"),
     ("restaurants", r"ranking_restaurants|RestaurantNameList|selected restaurants", "筛选餐厅"),
-    # Match the actual mode-ranking output only. The old broad
-    # `innercity_transport` pattern also matched three hard-constraint source
-    # lines during every validation, making the UI show misleading counts such
-    # as x48 even though modes were not selected 48 times.
-    ("inner_transport", r"selected\s+transportranking\s*:", "选择市内交通"),
-    ("planning", r"POI planning|add_|backtrack|Plan|searching", "DFS搜索生成行程"),
+    ("planning", r"DFS_NODE_COUNT:", "DFS搜索生成行程"),
     ("validation", r"valid|constraint|commonsense|check", "验证约束条件"),
 ]
 
@@ -157,6 +152,31 @@ class ProgressInterceptor(io.StringIO):
 
         s_stripped = s.strip()
         s_lower = s_stripped.lower()
+
+        # The planning count is emitted by the search itself.  Previously the
+        # UI counted every matching debug line (POI planning/backtrack/etc.),
+        # so values such as x379 were log-line counts rather than DFS nodes.
+        node_match = re.search(r"DFS_NODE_COUNT:\s*(\d+)", s_stripped)
+        if node_match:
+            node_count = int(node_match.group(1))
+            step_key = "planning"
+            detail = f"已搜索 {node_count} 个节点"
+            if step_key not in self.step_index:
+                self.step_index[step_key] = len(self.progress)
+                self.progress.append({
+                    "step": step_key,
+                    "label": "DFS搜索生成行程",
+                    "count": node_count,
+                    "detail": detail,
+                    "timestamp": datetime.now().isoformat(),
+                })
+            else:
+                idx = self.step_index[step_key]
+                self.progress[idx]["count"] = node_count
+                self.progress[idx]["detail"] = detail
+                self.progress[idx]["timestamp"] = datetime.now().isoformat()
+            self.step_counter[step_key] = node_count
+            return len(s)
 
         # Special handling: preserve every Thought instead of updating a single
         # shared progress entry. Numbered output such as "Thought 2:" is also
@@ -277,7 +297,7 @@ EXTRACTION_PROMPT = """你是一个旅行需求提取助手。根据用户的对
 可选字段：
 - budget: 总预算（元）
 - preferences: 偏好的景点类型、美食类型等
-- constraints: 限制条件（如只坐地铁、不要辣等）
+- constraints: 限制条件（如不要辣、指定酒店或必须游览某景点等）。不要提取地铁、打车、步行等市内交通偏好
 - optimization_goal: 只能是 budget_fit 或 min_total_cost。用户要求最便宜、最低价、最省钱时为 min_total_cost；否则为 budget_fit
 
 支持的城市：{supported_cities}
@@ -300,7 +320,7 @@ EXTRACTION_PROMPT = """你是一个旅行需求提取助手。根据用户的对
     "people_number": 1,
     "budget": 2000,
     "preferences": "喜欢历史文化景点",
-    "constraints": "只坐地铁",
+    "constraints": "不要辣",
     "optimization_goal": "budget_fit",
     "missing_required": ["start_city"],
     "clarification_question": "请问您从哪个城市出发呢？"
@@ -413,17 +433,16 @@ async def generate_plan_background(session: dict):
         # Bound POI branching so a complete 3-day path is reached before the
         # DFS spends its entire budget enumerating alternatives for Day 1/2.
         "search_width": 4,
-        # The LLM has already ranked metro/taxi/walk from the user's request.
-        # Expanding all three again at every DFS edge triples the branch factor.
         # Preselect a diverse preference/price pool before expensive route and
         # constraint evaluation; search_width is applied after this stage.
         "poi_candidate_width": 24,
         # The default keeps the original budget-proximity branch unchanged.
         # min_total_cost activates the isolated low-cost candidate branch in
-        # NesyAgent; a wider mode list lets feasibility checks fall back from
-        # walking to metro/taxi when walking cannot form a complete itinerary.
+        # NesyAgent.
         "optimization_goal": req.get("optimization_goal", DEFAULT_OPTIMIZATION_GOAL),
-        "inner_transport_width": 3 if cheapest_branch else 1,
+        # Local transport mode is not a product feature. Keep one hidden,
+        # route-based duration estimate per transition and never branch on it.
+        "enable_innercity_transport": False,
         # With no POI preference or extra constraint, LLM recommendations are
         # immediately overwritten by price ordering in the cheapest branch.
         "cost_only_search": cheapest_branch and not req.get("preferences") and not req.get("constraints"),
@@ -526,9 +545,15 @@ async def generate_plan_background(session: dict):
             error_info = plan.get("error_info", "")
 
             if error_info == "TimeOutError" or stats.get("dfs_timeout"):
+                search_nodes = plan.get(
+                    "search_nodes", getattr(agent, "search_nodes", "?")
+                )
+                backtracks = plan.get(
+                    "backtrack_count", getattr(agent, "backtrack_count", "?")
+                )
                 reason = (
                     f"⏱ 搜索超时（20秒内未找到完整方案）。\n\n"
-                    f"已尝试 {plan.get('backtrack_count', '?')} 个方案组合。\n"
+                    f"已搜索 {search_nodes} 个 DFS 节点，发生 {backtracks} 次回溯。\n"
                     f"建议：减少天数、增加预算，或换一个城市试试。"
                 )
             elif budget is not None and stats.get("budget_blocked", 0) > 0:

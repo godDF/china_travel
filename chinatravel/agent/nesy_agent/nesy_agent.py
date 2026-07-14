@@ -41,6 +41,15 @@ from chinatravel.symbol_verification.concept_func import *
 from chinatravel.agent.nesy_agent.nl2sl_hybrid import nl2sl_reflect
 from copy import deepcopy
 from chinatravel.optimization import MIN_TOTAL_COST, rank_plans_by_total_cost
+from chinatravel.agent.nesy_agent.day_completeness import (
+    activity_fits_day_deadline,
+    completion_errors,
+    day_activity_bounds,
+    final_day_attraction_is_feasible,
+    missing_day_items,
+    required_day_items,
+    time_to_minutes,
+)
 
 
 class NesyAgent(BaseAgent):
@@ -106,6 +115,9 @@ class NesyAgent(BaseAgent):
         self.search_width = kwargs.get("search_width", None)
         self.inner_transport_width = kwargs.get("inner_transport_width", None)
         self.poi_candidate_width = kwargs.get("poi_candidate_width", None)
+        self.enable_innercity_transport = bool(
+            kwargs.get("enable_innercity_transport", True)
+        )
 
         self.preference_search = False
         self.prompt_upd = True
@@ -124,7 +136,9 @@ class NesyAgent(BaseAgent):
         elif always_show:
             print(f"[回溯 #{self._bt_count}] {msg}")
         elif self._bt_count - self._bt_last_report >= 100:
-            print(f"[回溯] 已尝试 {self._bt_count} 个方案，正在继续搜索...")
+            print(
+                f"[回溯] 已记录 {self._bt_count} 次回溯事件，正在继续搜索..."
+            )
             self._bt_last_report = self._bt_count
 
     def _save_partial_plan(self, query, plan):
@@ -146,15 +160,51 @@ class NesyAgent(BaseAgent):
             }
 
     def _dfs_elapsed(self):
-        """Pure DFS compute time, excluding LLM response waiting."""
+        """Wall-clock time spent in DFS, including any dependency waits."""
         started_at = getattr(self, "dfs_started_at", self.time_before_search)
-        llm_at_start = getattr(self, "dfs_llm_inference_start", 0)
-        llm_during_dfs = max(0, self.llm_inference_time_count - llm_at_start)
-        return max(0, time.time() - started_at - llm_during_dfs)
+        return max(0, time.time() - started_at)
 
     def _dfs_timed_out(self):
-        """Apply the configured deadline to traversal, not API waiting."""
+        """Apply the configured deadline to the whole DFS operation."""
         return self._dfs_elapsed() >= self.TIME_CUT
+
+    def _report_search_progress(self):
+        """Emit the real node count instead of counting arbitrary log lines."""
+        last_reported = getattr(self, "_last_reported_search_nodes", -25)
+        if last_reported < 0 or self.search_nodes - last_reported >= 25:
+            print(f"DFS_NODE_COUNT:{self.search_nodes}")
+            self._last_reported_search_nodes = self.search_nodes
+
+    @staticmethod
+    def _record_identity(record, fields):
+        for field in fields:
+            try:
+                value = record.get(field)
+            except AttributeError:
+                value = None
+            if value is not None and str(value).lower() != "nan":
+                return str(value)
+        return ""
+
+    def _last_day_start_state_key(
+        self, query, poi_plan, plan, current_day, current_time, current_position
+    ):
+        """Return a safe memo key for repeated final-day 08:30 states."""
+        if current_day != query["days"] - 1 or current_time != "08:30":
+            return None
+        return (
+            self._record_identity(
+                poi_plan.get("go_transport", {}), ("TrainID", "FlightID")
+            ),
+            self._record_identity(
+                poi_plan.get("back_transport", {}), ("TrainID", "FlightID")
+            ),
+            str(poi_plan.get("accommodation", {}).get("name", "")),
+            current_position,
+            self._plan_signature(plan),
+            tuple(sorted(self.attractions_visiting)),
+            tuple(sorted(self.restaurants_visiting)),
+        )
 
     def _plan_signature(self, plan):
         """Generate a dedup key from a plan's core POI structure.
@@ -175,6 +225,169 @@ class NesyAgent(BaseAgent):
                 else:
                     parts.append(f"{t}:{act.get('position','')}")
         return "|".join(parts)
+
+    @staticmethod
+    def _time_to_minutes(value):
+        return time_to_minutes(value)
+
+    def _day_activity_bounds(self, query, poi_plan, current_day):
+        """Return the usable start/deadline (minutes) for a trip day.
+
+        The first day starts when the outbound intercity transport arrives.
+        Hotel days start after breakfast.  On the last day we reserve the
+        existing 180-minute window for reaching and boarding return transport.
+        """
+        return day_activity_bounds(query, poi_plan, current_day)
+
+    def _required_day_items(self, query, poi_plan, current_day):
+        """Compute hard day-completeness requirements from the usable window."""
+        return required_day_items(query, poi_plan, current_day)
+
+    def _missing_day_items(self, query, plan, poi_plan, current_day):
+        return missing_day_items(query, plan, poi_plan, current_day)
+
+    def _completion_errors(self, query, plan, poi_plan):
+        return completion_errors(query, plan, poi_plan)
+
+    def _activity_fits_day_deadline(self, query, poi_plan, current_day, end_time):
+        return activity_fits_day_deadline(
+            query, poi_plan, current_day, end_time
+        )
+
+    def _estimate_innercity_arrival(
+        self, city, start, end, start_time, fallback_minutes=30
+    ):
+        """Estimate one transfer duration without exposing a transport plan.
+
+        Taxi routing is used only as a deterministic duration estimator.  It is
+        not a user preference, DFS branch, constraint, cost, or output field.
+        When routing data is unavailable, reserve a 30-minute transfer window.
+        """
+        if start == end:
+            return start_time
+
+        cache = getattr(self, "_transfer_time_cache", None)
+        cache_key = (city, start, end, start_time)
+        if cache is not None and cache_key in cache:
+            return cache[cache_key]
+
+        arrived_time = None
+        try:
+            route = self.collect_innercity_transport(
+                city, start, end, start_time, "taxi"
+            )
+            if isinstance(route, list) and route:
+                arrived_time = route[-1].get("end_time")
+        except Exception as exc:
+            self._bt_log(f"transfer duration estimation failed: {exc}")
+
+        if not arrived_time:
+            arrived_time = add_time_delta(start_time, fallback_minutes)
+            self._bt_log(
+                "transfer duration data unavailable; use 30-minute fallback"
+            )
+
+        if cache is not None:
+            cache[cache_key] = arrived_time
+        return arrived_time
+
+    def _innercity_transfer_options(
+        self, city, start, end, start_time
+    ):
+        """Return either one hidden estimate or the legacy mode branches."""
+        if not self.enable_innercity_transport:
+            return [
+                (
+                    [],
+                    self._estimate_innercity_arrival(
+                        city, start, end, start_time
+                    ),
+                )
+            ]
+
+        options = []
+        for transport_type in self.innercity_transports_ranking_from_query:
+            transports = self.collect_innercity_transport(
+                city, start, end, start_time, transport_type
+            )
+            if not isinstance(transports, list):
+                continue
+            arrived_time = (
+                transports[-1]["end_time"] if transports else start_time
+            )
+            options.append((transports, arrived_time))
+        return options
+
+    def _can_finish_day(self, query, plan, poi_plan, current_day):
+        missing = self._missing_day_items(query, plan, poi_plan, current_day)
+        if missing:
+            self._bt_log(
+                "Day {} cannot end; missing required items: {}".format(
+                    current_day + 1, ", ".join(sorted(missing))
+                )
+            )
+            return False
+        return True
+
+    def _cheapest_combo_has_feasible_final_day(self, query, poi_plan):
+        """Reject an impossible hotel/return pair before expanding earlier days.
+
+        In the cheapest branch, low-price airport hotels and early-afternoon
+        return services are often ranked first.  If no attraction can be
+        reached from that hotel and visited for 90 minutes before the reserved
+        return buffer, changing Day 1 or Day 2 can never repair the plan.  This
+        necessary-condition check prevents DFS from repeatedly rediscovering
+        the same final-day failure after enumerating unrelated POI choices.
+
+        The check is deliberately conservative: it only rejects a combination
+        when *none* of the attractions in the inventory can fit.  Passing this
+        check does not bypass the normal DFS or final constraint validation.
+        """
+        if self.optimization_goal != MIN_TOTAL_COST:
+            return True
+        if int(query.get("days", 0) or 0) <= 1:
+            return True
+
+        self._reserved_final_attraction = None
+        final_day = int(query["days"]) - 1
+        if "attraction" not in self._required_day_items(
+            query, poi_plan, final_day
+        ):
+            return True
+
+        attractions = self.memory.get("attractions")
+        if attractions is None or len(attractions) == 0:
+            return False
+
+        def arrival_estimator(hotel_name, attraction_name, start_time):
+            return self._estimate_innercity_arrival(
+                query["target_city"],
+                hotel_name,
+                attraction_name,
+                start_time,
+            )
+
+        feasible = []
+        for position, (_, attraction) in enumerate(attractions.iterrows()):
+            if final_day_attraction_is_feasible(
+                query, poi_plan, [attraction], arrival_estimator
+            ):
+                try:
+                    price = float(attraction.get("price", 0) or 0)
+                except (TypeError, ValueError):
+                    price = 0.0
+                feasible.append((price, position))
+
+        if not feasible:
+            return False
+
+        # Preserve the cheapest scarce candidate for the final day.  Without
+        # this reservation, an otherwise feasible combination can consume its
+        # only early-opening nearby attraction on Day 2 and then exhaustively
+        # fail on Day 3.
+        feasible.sort()
+        self._reserved_final_attraction = feasible[0][1]
+        return True
 
 
     @staticmethod
@@ -346,6 +559,68 @@ class NesyAgent(BaseAgent):
 
         return query
 
+    @staticmethod
+    def _remove_innercity_constraints(query):
+        """Remove only local-transport rules from translated constraints."""
+        query = deepcopy(query)
+        transport_tokens = (
+            "innercity",
+            "inner_city_transport",
+            "taxi_cars",
+            "metro_tickets",
+        )
+        query["hard_logic"] = [
+            item
+            for item in query.get("hard_logic", [])
+            if not any(token in str(item) for token in transport_tokens)
+        ]
+
+        cleaned_constraints = []
+        for constraint in query.get("hard_logic_py", []):
+            cleaned_lines = []
+            for line in str(constraint).splitlines():
+                if (
+                    "innercity_transport_type" in line
+                    or "metro_tickets" in line
+                    or "taxi_cars" in line
+                ):
+                    continue
+                line = line.replace(
+                    "+innercity_transport_cost(activity_transports(activity))",
+                    "",
+                )
+                cleaned_lines.append(line)
+
+            # Removing the only transport check from a loop can leave an
+            # invalid bare ``for ...:`` block. Prune empty block headers while
+            # retaining mixed constraints such as attraction ticket checks.
+            changed = True
+            while changed:
+                changed = False
+                pruned_lines = []
+                for index, line in enumerate(cleaned_lines):
+                    if line.rstrip().endswith(":"):
+                        base_indent = len(line) - len(line.lstrip())
+                        has_body = False
+                        for following in cleaned_lines[index + 1 :]:
+                            if not following.strip():
+                                continue
+                            following_indent = len(following) - len(
+                                following.lstrip()
+                            )
+                            has_body = following_indent > base_indent
+                            break
+                        if not has_body:
+                            changed = True
+                            continue
+                    pruned_lines.append(line)
+                cleaned_lines = pruned_lines
+
+            cleaned = "\n".join(cleaned_lines).strip()
+            cleaned_constraints.append(cleaned or "result=True")
+        query["hard_logic_py"] = cleaned_constraints
+        return query
+
     def run(self, query, load_cache=False, oralce_translation=False, preference_search=False):
 
         self.preference_search = preference_search
@@ -454,6 +729,12 @@ class NesyAgent(BaseAgent):
 
         self.constraints_validation_count += 1
 
+        completion_errors = self._completion_errors(query, plan, poi_plan)
+        if completion_errors:
+            for error in completion_errors:
+                self._bt_log(error)
+            return False, plan
+
         res_plan = {
             "people_number": query["people_number"],
             "start_city": query["start_city"],
@@ -465,7 +746,12 @@ class NesyAgent(BaseAgent):
 
         self.least_plan_schema = deepcopy(res_plan)
 
-        bool_result = func_commonsense_constraints(query, res_plan, verbose=True)
+        bool_result = func_commonsense_constraints(
+            query,
+            res_plan,
+            verbose=True,
+            check_innercity=self.enable_innercity_transport,
+        )
 
         # if not bool_result:
         #     exit(0)
@@ -557,6 +843,11 @@ class NesyAgent(BaseAgent):
         if bool_result:
             res_plan["search_time_sec"] = self._dfs_elapsed()
             res_plan["llm_inference_time_sec"] = self.llm_inference_time_count
+            # Snapshot real traversal statistics on each candidate.  The
+            # wrapper also carries final totals, but the frontend formats the
+            # individual plans and previously displayed zero for every one.
+            res_plan["search_nodes"] = self.search_nodes
+            res_plan["backtrack_count"] = self.backtrack_count
             # Multi-plan: dedup before collecting
             sig = self._plan_signature(plan)
             if sig in getattr(self, '_seen_signatures', set()):
@@ -757,39 +1048,21 @@ class NesyAgent(BaseAgent):
             return True
 
         if current_time != "" and current_day == query["days"] - 1:
-            # We should go back in time ...
-            transports_ranking = self.innercity_transports_ranking_from_query
-
-            for transport_type_sel in transports_ranking:
-
-                self.search_nodes += 1
-                flag = True
-                if "back_transport" in poi_plan:
-                    transports_sel = self.collect_innercity_transport(
-                        query["target_city"],
-                        current_position,
-                        poi_plan["back_transport"]["From"],
-                        current_time,
-                        transport_type_sel,
-                    )
-                    if not isinstance(transports_sel, list):
-                        self.backtrack_count += 1
-                        self._bt_log("inner-city transport error, backtrack...")
-                        continue
-
-                    if len(transports_sel) > 0:
-                        arrived_time = transports_sel[-1]["end_time"]
-                    else:
-                        arrived_time = current_time
-
-                    if not time_compare_if_earlier_equal(
-                        poi_plan["back_transport"]["BeginTime"], arrived_time
-                    ):
-                        flag = False
-                if flag:
+            if "back_transport" in poi_plan:
+                options = self._innercity_transfer_options(
+                    query["target_city"],
+                    current_position,
+                    poi_plan["back_transport"]["From"],
+                    current_time,
+                )
+                departure = poi_plan["back_transport"]["BeginTime"]
+                if not any(
+                    time_compare_if_earlier_equal(arrived_time, departure)
+                    for _, arrived_time in options
+                ):
                     self._bt_log(
-                        "Can not go back source-city in time, current POI {}, station arrived time: {}".format(
-                            current_position, arrived_time
+                        "Can not reach return transport in time from {}".format(
+                            current_position
                         )
                     )
                     return True
@@ -797,75 +1070,41 @@ class NesyAgent(BaseAgent):
         elif current_time != "":
             if "accommodation" in poi_plan:
                 hotel_sel = poi_plan["accommodation"]
-                transports_ranking = self.innercity_transports_ranking_from_query
-
-                for transport_type_sel in transports_ranking:
-                    self.search_nodes += 1
-                    flag = True
-                    if "back_transport" in poi_plan:
-                        transports_sel = self.collect_innercity_transport(
-                            query["target_city"],
-                            current_position,
-                            hotel_sel["name"],
-                            current_time,
-                            transport_type_sel,
+                options = self._innercity_transfer_options(
+                    query["target_city"],
+                    current_position,
+                    hotel_sel["name"],
+                    current_time,
+                )
+                if not any(
+                    time_compare_if_earlier_equal(arrived_time, "24:00")
+                    for _, arrived_time in options
+                ):
+                    self._bt_log(
+                        "Can not return to hotel in time from {}".format(
+                            current_position
                         )
-                        if not isinstance(transports_sel, list):
-                            self.backtrack_count += 1
-                            self._bt_log("inner-city transport error, backtrack...")
-                            continue
-
-                        flag = True
-
-                        if len(transports_sel) > 0:
-                            arrived_time = transports_sel[-1]["end_time"]
-                        else:
-                            arrived_time = current_time
-                        if not time_compare_if_earlier_equal("24:00", arrived_time):
-                            flag = False
-                    if flag:
-                        self._bt_log(
-                            "Can not go back to hotel, current POI {}, hotel arrived time: {}".format(
-                                current_position, arrived_time
-                            )
-                        )
-                        return True
+                    )
+                    return True
 
         return False
 
     def forward_check(self, query, plan, poi_plan, current_day, current_time, current_position):
         """
-        前向检查：在继续搜索之前，快速判断当前状态是否还有可能找到可行解。
-        如果不可能，立即返回 False 触发回溯，避免浪费搜索。
+        Check whether the current day's remaining required items can still fit.
 
-        检查维度：
-        1. 预算：剩余预算是否还能覆盖最低成本的必做事项
-        2. 时间：最后一天剩余时间是否足够完成必做事项 + 回程交通
-        3. 天数：非最后一天且无酒店安排时，检查是否能赶上酒店
-
-        返回 True 表示可能可行，False 表示一定不可行（直接回溯）。
+        Day requirements are deliberately local to current_day.  This avoids a
+        lunch or dinner on one day incorrectly satisfying another day.
         """
-        # ---- 1. 统计当天还剩哪些必做事项 ----
-        haved_lunch = any(
-            a["type"] == "lunch" for d in plan for a in d["activities"]
+        if current_time in ("", "00:00"):
+            return True
+
+        missing_items = self._missing_day_items(
+            query, plan, poi_plan, current_day
         )
-        haved_dinner = any(
-            a["type"] == "dinner" for d in plan for a in d["activities"]
-        )
-        is_last_day = (current_day == query["days"] - 1)
+        if not missing_items:
+            return True
 
-        remaining_items = 0
-        if not haved_lunch and current_time != "" and current_time != "00:00":
-            remaining_items += 1  # 还没吃午饭
-        if not haved_dinner and current_time != "" and current_time != "00:00":
-            remaining_items += 1  # 还没吃晚饭
-        if is_last_day and current_time != "" and "back_transport" in poi_plan:
-            remaining_items += 1  # 还需要回程交通
-
-        if remaining_items == 0:
-            return True  # 没有必做事项了，不需要检查
-
-        # ---- 2. 预算前向检查 ----
         if self.required_budget is not None:
             current_cost = 0
             for day_activities in plan:
@@ -873,42 +1112,46 @@ class NesyAgent(BaseAgent):
                     if activity["type"] in ["breakfast", "lunch", "dinner", "attraction"]:
                         current_cost += activity.get("cost", 0)
 
-            # 保守估算：每项至少 50 元（餐费）+ 每次市内交通至少 0 元（步行）
             MIN_COST_PER_ITEM = 30
-            MIN_TRANSPORT_PER_ITEM = 0
-            min_remaining_cost = remaining_items * (MIN_COST_PER_ITEM + MIN_TRANSPORT_PER_ITEM)
+            min_remaining_cost = len(missing_items) * MIN_COST_PER_ITEM
 
             if current_cost + self.intercity_with_hotel_cost + min_remaining_cost > self.required_budget:
                 self.backtrack_count += 1
                 self._bt_log(
-                    "前向检查失败：预算不足 (已花{} + 城际酒店{} + 最低剩余{} > 预算{})".format(
+                    "Forward check failed: budget is insufficient "
+                    "(spent {} + intercity/hotel {} + remaining minimum {} > budget {})".format(
                         current_cost, self.intercity_with_hotel_cost, min_remaining_cost, self.required_budget
                     )
                 )
                 return False
 
-        # ---- 3. 时间前向检查（最后一天时间紧迫） ----
-        if is_last_day and current_time != "":
-            MIN_MINUTES_PER_ITEM = 60  # 每项至少 60 分钟（含交通）
-            deadline = "21:00"  # 回程前需要完成的最后时间
+        current_minutes = self._time_to_minutes(current_time)
+        _, deadline = self._day_activity_bounds(query, poi_plan, current_day)
+        if current_minutes is None or deadline is None:
+            return False
 
-            hour, minute = map(int, current_time.split(":"))
-            current_minutes = hour * 60 + minute
-            d_hour, d_minute = map(int, deadline.split(":"))
-            deadline_minutes = d_hour * 60 + d_minute
+        # A missed service window cannot be repaired deeper in the DFS.
+        if "lunch" in missing_items and current_minutes >= 13 * 60:
+            self.backtrack_count += 1
+            self._bt_log("Forward check failed: today's lunch window was missed")
+            return False
+        if "dinner" in missing_items and current_minutes >= 20 * 60:
+            self.backtrack_count += 1
+            self._bt_log("Forward check failed: today's dinner window was missed")
+            return False
 
-            remaining_time = deadline_minutes - current_minutes
-            needed_time = remaining_items * MIN_MINUTES_PER_ITEM
-
-            if remaining_time < needed_time:
-                self.backtrack_count += 1
-                self._bt_log(
-                    "前向检查失败：时间不足 (剩余{}分钟 < 需要{}分钟, {}/{}项)".format(
-                        remaining_time, needed_time, remaining_items,
-                        "午" if not haved_lunch else "" + "晚" if not haved_dinner else "" + "回程" if is_last_day else ""
-                    )
+        minimum_minutes = {"lunch": 60, "dinner": 60, "attraction": 90}
+        needed_time = sum(minimum_minutes[item] for item in missing_items)
+        remaining_time = deadline - current_minutes
+        if remaining_time < needed_time:
+            self.backtrack_count += 1
+            self._bt_log(
+                "Forward check failed: only {} minutes remain for {} minutes of "
+                "required items ({})".format(
+                    remaining_time, needed_time, ", ".join(sorted(missing_items))
                 )
-                return False
+            )
+            return False
 
         return True
 
@@ -1132,6 +1375,14 @@ class NesyAgent(BaseAgent):
             if current_position == poi_sel["name"]:
                 transports_sel = []
                 arrived_time = current_time
+            elif not self.enable_innercity_transport:
+                transports_sel = []
+                arrived_time = self._estimate_innercity_arrival(
+                    query["target_city"],
+                    current_position,
+                    poi_sel["name"],
+                    current_time,
+                )
             else:
 
                 transports_sel = self.collect_innercity_transport(
@@ -1224,6 +1475,14 @@ class NesyAgent(BaseAgent):
             if poi_sel["name"] == current_position:
                 transports_sel = []
                 arrived_time = current_time
+            elif not self.enable_innercity_transport:
+                transports_sel = []
+                arrived_time = self._estimate_innercity_arrival(
+                    query["target_city"],
+                    current_position,
+                    poi_sel["name"],
+                    current_time,
+                )
             else:
                 transports_sel = self.collect_innercity_transport(
                     query["target_city"],
@@ -1282,6 +1541,16 @@ class NesyAgent(BaseAgent):
     ):
 
         self.search_nodes += 1
+        self._report_search_progress()
+
+        state_key = self._last_day_start_state_key(
+            query, poi_plan, plan, current_day, current_time, current_position
+        )
+        if state_key is not None and state_key in self._failed_dfs_states:
+            self.failure_stats["memoized_state"] += 1
+            self._bt_log("Skip repeated infeasible final-day state")
+            return False, plan
+        collected_count_at_entry = len(self.collected_plans)
 
         # Fast exit: skip remaining search within current combo
         # when a unique plan has been collected and we need to try a different combo
@@ -1300,6 +1569,8 @@ class NesyAgent(BaseAgent):
         ):
             self.backtrack_count += 1
             self._bt_log("The current time is too late to go hotel or back-transport, backtrack...")
+            if state_key is not None:
+                self._failed_dfs_states.add(state_key)
             return False, plan
 
         if self.required_budget != None:
@@ -1317,11 +1588,18 @@ class NesyAgent(BaseAgent):
             if total_cost + self.intercity_with_hotel_cost > self.required_budget:
                 self.backtrack_count += 1
                 self._bt_log("budget exceeded, backtrack...")
+                if state_key is not None:
+                    self._failed_dfs_states.add(state_key)
                 return False, plan
 
-            # 前向检查：提前发现不可行状态，避免深入搜索后才发现失败
-            if not self.forward_check(query, plan, poi_plan, current_day, current_time, current_position):
-                return False, plan
+        # Day completeness is independent of whether the user supplied a
+        # budget, so its time check must never be skipped.
+        if not self.forward_check(
+            query, plan, poi_plan, current_day, current_time, current_position
+        ):
+            if state_key is not None:
+                self._failed_dfs_states.add(state_key)
+            return False, plan
 
         # intercity_transport - go
         if current_day == 0 and current_time == "":
@@ -1363,10 +1641,20 @@ class NesyAgent(BaseAgent):
             if success:
                 return True, plan
 
+            if getattr(self, '_skip_to_next_combo', False):
+                return False, plan
+
             plan[current_day]["activities"].pop()
 
             candidates_type = []
-            if current_day == query["days"] - 1 and current_time != "":
+            remaining_items = self._missing_day_items(
+                query, plan, poi_plan, current_day
+            )
+            if (
+                current_day == query["days"] - 1
+                and current_time != ""
+                and not remaining_items
+            ):
                 candidates_type.append("back-intercity-transport")
             else:
 
@@ -1376,23 +1664,29 @@ class NesyAgent(BaseAgent):
                 return False, plan
 
         else:
-            haved_lunch_today, haved_dinner_today = False, False
+            missing_items = self._missing_day_items(
+                query, plan, poi_plan, current_day
+            )
 
-            for act_i in plan[current_day]["activities"]:
-                if act_i["type"] == "lunch":
-                    haved_lunch_today = True
-                if act_i["type"] == "dinner":
-                    haved_dinner_today = True
-
-            candidates_type = ["attraction"]
-            if not haved_lunch_today:
-                candidates_type.append("lunch")
-            if not haved_dinner_today:
-                candidates_type.append("dinner")
-            if ("accommodation" in poi_plan) and (current_day < query["days"] - 1):
-                candidates_type.append("hotel")
-            if current_day == query["days"] - 1 and current_time != "":
-                candidates_type.append("back-intercity-transport")
+            # Required items are scheduled deterministically. Attractions are
+            # available as fillers only while a required item is outstanding.
+            # Once the day is complete, terminate it immediately instead of
+            # expanding optional POIs until the deadline.
+            candidates_type = []
+            if missing_items:
+                candidates_type.append("attraction")
+                if "lunch" in missing_items:
+                    candidates_type.append("lunch")
+                if "dinner" in missing_items:
+                    candidates_type.append("dinner")
+            else:
+                if (
+                    "accommodation" in poi_plan
+                    and current_day < query["days"] - 1
+                ):
+                    candidates_type.append("hotel")
+                if current_day == query["days"] - 1 and current_time != "":
+                    candidates_type.append("back-intercity-transport")
 
         print("candidates_type: ", candidates_type)
 
@@ -1413,26 +1707,27 @@ class NesyAgent(BaseAgent):
                 )
             )
 
+            if poi_type in ("hotel", "back-intercity-transport") and not self._can_finish_day(
+                query, plan, poi_plan, current_day
+            ):
+                self.backtrack_count += 1
+                candidates_type.remove(poi_type)
+                continue
+
             if poi_type == "back-intercity-transport":
 
                 if len(plan) < current_day + 1:
                     plan.append({"day": current_day + 1, "activities": []})
 
-                # transports_ranking = self.ranking_innercity_transport(current_position, poi_plan["back_transport"]["From"], current_day, current_time)
-                transports_ranking = self.innercity_transports_ranking_from_query
-                for trans_type_sel in transports_ranking:
-                    self.search_nodes += 1
-                    transports_sel = self.collect_innercity_transport(
-                        query["target_city"],
-                        current_position,
-                        poi_plan["back_transport"]["From"],
-                        current_time,
-                        trans_type_sel,
-                    )
-                    if not isinstance(transports_sel, list):
-                        self.backtrack_count += 1
-                        self._bt_log("inner-city transport error, backtrack...")
-                        continue
+                transfer_options = self._innercity_transfer_options(
+                    query["target_city"],
+                    current_position,
+                    poi_plan["back_transport"]["From"],
+                    current_time,
+                )
+                for transports_sel, _ in transfer_options:
+                    if self.enable_innercity_transport:
+                        self.search_nodes += 1
 
                     plan[current_day]["activities"] = self.add_intercity_transport(
                         plan[current_day]["activities"],
@@ -1456,31 +1751,16 @@ class NesyAgent(BaseAgent):
 
                 hotel_sel = poi_plan["accommodation"]
 
-                # transports_ranking = self.ranking_innercity_transport(current_position, hotel_sel["name"], current_day, current_time)
-                transports_ranking = self.innercity_transports_ranking_from_query
+                transfer_options = self._innercity_transfer_options(
+                    query["target_city"],
+                    current_position,
+                    hotel_sel["name"],
+                    current_time,
+                )
 
-                for trans_type_sel in transports_ranking:
-                    self.search_nodes += 1
-                    if hotel_sel["name"] == current_position:
-                        transports_sel = []
-                        arrived_time = current_time
-                    else:
-                        transports_sel = self.collect_innercity_transport(
-                            query["target_city"],
-                            current_position,
-                            hotel_sel["name"],
-                            current_time,
-                            trans_type_sel,
-                        )
-                        if not isinstance(transports_sel, list):
-                            self.backtrack_count += 1
-                            self._bt_log("inner-city transport error, backtrack...")
-                            continue
-
-                        if len(transports_sel) == 0:
-                            arrived_time = current_time
-                        else:
-                            arrived_time = transports_sel[-1]["end_time"]
+                for transports_sel, arrived_time in transfer_options:
+                    if self.enable_innercity_transport:
+                        self.search_nodes += 1
 
                     plan = self.add_accommodation(
                         current_plan=plan,
@@ -1500,6 +1780,9 @@ class NesyAgent(BaseAgent):
 
                     if success:
                         return True, plan
+
+                    if getattr(self, '_skip_to_next_combo', False):
+                        return False, plan
 
                     self.backtrack_count += 1
                     self._bt_log("Fail with the given accommodation activity, backtrack...")
@@ -1529,21 +1812,27 @@ class NesyAgent(BaseAgent):
                         ranking_idx,
                     )
 
-                    for sea_i, r_i in enumerate(ranking_idx):
+                    attempted_candidates = 0
+                    for r_i in ranking_idx:
 
                         # Check timeout in restaurant loop
                         if self._dfs_timed_out():
                             raise TimeOutError
 
-                        if self.search_width != None and sea_i >= self.search_width:
+                        res_idx = r_i
+                        if res_idx in self.restaurants_visiting:
+                            continue
+
+                        if (
+                            self.search_width is not None
+                            and attempted_candidates >= self.search_width
+                        ):
                             print(
                                 "Out of search_width [{}], break".format(
                                     self.search_width
                                 )
                             )
                             break
-
-                        res_idx = r_i
 
                         if not (res_idx in self.restaurants_visiting):
 
@@ -1554,29 +1843,16 @@ class NesyAgent(BaseAgent):
 
                             poi_sel = self.memory["restaurants"].iloc[res_idx]
 
-                            # transports_ranking = self.ranking_innercity_transport(current_position, poi_sel["name"], current_day, current_time)
-                            transports_ranking = (
-                                self.innercity_transports_ranking_from_query
+                            transfer_options = self._innercity_transfer_options(
+                                query["target_city"],
+                                current_position,
+                                poi_sel["name"],
+                                current_time,
                             )
 
-                            for trans_type_sel in transports_ranking:
-                                self.search_nodes += 1
-                                transports_sel = self.collect_innercity_transport(
-                                    query["target_city"],
-                                    current_position,
-                                    poi_sel["name"],
-                                    current_time,
-                                    trans_type_sel,
-                                )
-                                if not isinstance(transports_sel, list):
-                                    self.backtrack_count += 1
-                                    self._bt_log("inner-city transport error, backtrack...")
-                                    continue
-
-                                if len(transports_sel) == 0:
-                                    arrived_time = current_time
-                                else:
-                                    arrived_time = transports_sel[-1]["end_time"]
+                            for transports_sel, arrived_time in transfer_options:
+                                if self.enable_innercity_transport:
+                                    self.search_nodes += 1
 
 
                                 try:
@@ -1596,9 +1872,19 @@ class NesyAgent(BaseAgent):
                                 new_time = plan[current_day]["activities"][-1][
                                     "end_time"
                                 ]
+                                if not self._activity_fits_day_deadline(
+                                    query, poi_plan, current_day, new_time
+                                ):
+                                    plan[current_day]["activities"].pop()
+                                    self.backtrack_count += 1
+                                    self._bt_log(
+                                        "Restaurant would cross the day's activity deadline, backtrack..."
+                                    )
+                                    continue
                                 new_position = poi_sel["name"]
                                 self.restaurants_visiting.append(res_idx)
                                 self.food_type_visiting.append(poi_sel["cuisine"])
+                                attempted_candidates += 1
                                 success, plan = self.dfs_poi(
                                     query,
                                     poi_plan,
@@ -1609,6 +1895,12 @@ class NesyAgent(BaseAgent):
                                 )
                                 if success:
                                     return True, plan
+
+                                if getattr(self, '_skip_to_next_combo', False):
+                                    plan[current_day]["activities"].pop()
+                                    self.restaurants_visiting.pop()
+                                    self.food_type_visiting.pop()
+                                    return False, plan
 
                                 self.backtrack_count += 1
                                 self._bt_log("add_restaurant failed, backtrack...")
@@ -1629,6 +1921,20 @@ class NesyAgent(BaseAgent):
                         self.intercity_with_hotel_cost,
                     )
 
+                    reserved_final_attraction = getattr(
+                        self, "_reserved_final_attraction", None
+                    )
+                    if (
+                        self.optimization_goal == MIN_TOTAL_COST
+                        and current_day == query["days"] - 1
+                        and reserved_final_attraction is not None
+                    ):
+                        ranking_idx = [reserved_final_attraction] + [
+                            int(index)
+                            for index in ranking_idx
+                            if int(index) != reserved_final_attraction
+                        ]
+
                     ranking_idx = self.reranking_attractions_with_constraints(
                         plan,
                         poi_type,
@@ -1640,13 +1946,31 @@ class NesyAgent(BaseAgent):
                         ranking_idx,
                     )
 
-                    for sea_i, r_i in enumerate(ranking_idx):
+                    attempted_candidates = 0
+                    for r_i in ranking_idx:
 
                         # Check timeout in attraction loop
                         if self._dfs_timed_out():
                             raise TimeOutError
 
-                        if self.search_width != None and sea_i >= self.search_width:
+                        attr_idx = r_i
+                        if attr_idx in self.attractions_visiting:
+                            continue
+
+                        if (
+                            self.optimization_goal == MIN_TOTAL_COST
+                            and current_day < query["days"] - 1
+                            and getattr(
+                                self, "_reserved_final_attraction", None
+                            )
+                            == attr_idx
+                        ):
+                            continue
+
+                        if (
+                            self.search_width is not None
+                            and attempted_candidates >= self.search_width
+                        ):
                             print(
                                 "Out of search_width [{}], break".format(
                                     self.search_width
@@ -1654,7 +1978,6 @@ class NesyAgent(BaseAgent):
                             )
                             break
                         self.search_nodes += 1
-                        attr_idx = r_i
                         if not (attr_idx in self.attractions_visiting):
 
                             if attr_idx < 0 or attr_idx >= len(
@@ -1665,27 +1988,15 @@ class NesyAgent(BaseAgent):
                             poi_sel = self.memory["attractions"].iloc[attr_idx]
                             # print(current_position, poi_sel["name"])
 
-                            # transports_ranking = self.ranking_innercity_transport(current_position, poi_sel["name"], current_day, current_time)
-                            transports_ranking = (
-                                self.innercity_transports_ranking_from_query
+                            transfer_options = self._innercity_transfer_options(
+                                query["target_city"],
+                                current_position,
+                                poi_sel["name"],
+                                current_time,
                             )
-                            for trans_type_sel in transports_ranking:
-                                self.search_nodes += 1
-                                transports_sel = self.collect_innercity_transport(
-                                    query["target_city"],
-                                    current_position,
-                                    poi_sel["name"],
-                                    current_time,
-                                    trans_type_sel,
-                                )
-                                if not isinstance(transports_sel, list):
-                                    self.backtrack_count += 1
-                                    self._bt_log("inner-city transport error, backtrack...")
-                                    continue
-                                if len(transports_sel) == 0:
-                                    arrived_time = current_time
-                                else:
-                                    arrived_time = transports_sel[-1]["end_time"]
+                            for transports_sel, arrived_time in transfer_options:
+                                if self.enable_innercity_transport:
+                                    self.search_nodes += 1
 
                                 opentime, endtime = (
                                     poi_sel["opentime"],
@@ -1724,6 +2035,15 @@ class NesyAgent(BaseAgent):
                                 if time_compare_if_earlier_equal(endtime, act_end_time):
                                     act_end_time = endtime
 
+                                if not self._activity_fits_day_deadline(
+                                    query, poi_plan, current_day, act_end_time
+                                ):
+                                    self.backtrack_count += 1
+                                    self._bt_log(
+                                        "Attraction would cross the day's activity deadline, backtrack..."
+                                    )
+                                    continue
+
                                 plan[current_day]["activities"] = self.add_poi(
                                     activities=plan[current_day]["activities"],
                                     position=poi_sel["name"],
@@ -1745,6 +2065,7 @@ class NesyAgent(BaseAgent):
                                 self.attractions_visiting.append(attr_idx)
                                 self.spot_type_visiting.append(poi_sel["type"])
                                 self.attraction_names_visiting.append(poi_sel["name"])
+                                attempted_candidates += 1
 
                                 success, plan = self.dfs_poi(
                                     query,
@@ -1758,6 +2079,13 @@ class NesyAgent(BaseAgent):
                                 if success:
                                     return True, plan
 
+                                if getattr(self, '_skip_to_next_combo', False):
+                                    plan[current_day]["activities"].pop()
+                                    self.attractions_visiting.pop()
+                                    self.spot_type_visiting.pop()
+                                    self.attraction_names_visiting.pop()
+                                    return False, plan
+
                                 self.backtrack_count += 1
                                 self._bt_log("add_attraction failed, backtrack...")
 
@@ -1768,28 +2096,25 @@ class NesyAgent(BaseAgent):
 
                 # The last event in a day: hotel or go-back
 
-                if current_day == query["days"] - 1:
+                if (
+                    current_day == query["days"] - 1
+                    and self._can_finish_day(query, plan, poi_plan, current_day)
+                ):
 
                     # go back
 
                     if len(plan) < current_day + 1:
                         plan.append({"day": current_day + 1, "activities": []})
                     self.search_nodes += 1
-                    # transports_ranking = self.ranking_innercity_transport(current_position, poi_plan["back_transport"]["From"], current_day, current_time)
-                    transports_ranking = self.innercity_transports_ranking_from_query
-                    for trans_type_sel in transports_ranking:
-                        self.search_nodes += 1
-                        transports_sel = self.collect_innercity_transport(
-                            query["target_city"],
-                            current_position,
-                            poi_plan["back_transport"]["From"],
-                            current_time,
-                            trans_type_sel,
-                        )
-                        if not isinstance(transports_sel, list):
-                            self.backtrack_count += 1
-                            self._bt_log("inner-city transport error, backtrack...")
-                            continue
+                    transfer_options = self._innercity_transfer_options(
+                        query["target_city"],
+                        current_position,
+                        poi_plan["back_transport"]["From"],
+                        current_time,
+                    )
+                    for transports_sel, _ in transfer_options:
+                        if self.enable_innercity_transport:
+                            self.search_nodes += 1
 
                         plan[current_day]["activities"] = self.add_intercity_transport(
                             plan[current_day]["activities"],
@@ -1816,30 +2141,23 @@ class NesyAgent(BaseAgent):
                             if getattr(self, '_skip_to_next_combo', False):
                                 return False, plan
 
-                elif self.query["days"] > 1:
+                elif (
+                    current_day != query["days"] - 1
+                    and self.query["days"] > 1
+                    and self._can_finish_day(query, plan, poi_plan, current_day)
+                ):
                     # go to hotel
                     hotel_sel = poi_plan["accommodation"]
                     self.search_nodes += 1
-                    # transports_ranking = self.ranking_innercity_transport(current_position, hotel_sel["name"], current_day, current_time)
-                    transports_ranking = self.innercity_transports_ranking_from_query
-                    for trans_type_sel in transports_ranking:
-                        self.search_nodes += 1
-                        transports_sel = self.collect_innercity_transport(
-                            query["target_city"],
-                            current_position,
-                            hotel_sel["name"],
-                            current_time,
-                            trans_type_sel,
-                        )
-                        if not isinstance(transports_sel, list):
-                            self.backtrack_count += 1
-                            self._bt_log("inner-city transport error, backtrack...")
-                            continue
-
-                        if len(transports_sel) == 0:
-                            arrived_time = current_time
-                        else:
-                            arrived_time = transports_sel[-1]["end_time"]
+                    transfer_options = self._innercity_transfer_options(
+                        query["target_city"],
+                        current_position,
+                        hotel_sel["name"],
+                        current_time,
+                    )
+                    for transports_sel, arrived_time in transfer_options:
+                        if self.enable_innercity_transport:
+                            self.search_nodes += 1
 
                         plan = self.add_accommodation(
                             current_plan=plan,
@@ -1864,6 +2182,8 @@ class NesyAgent(BaseAgent):
 
                         if success:
                             return True, plan
+                        if getattr(self, '_skip_to_next_combo', False):
+                            return False, plan
                         else:
                             self.backtrack_count += 1
                             self._bt_log("Try the go back hotel, failed, backtrack...")
@@ -1881,6 +2201,11 @@ class NesyAgent(BaseAgent):
             candidates_type.remove(poi_type)
             self._bt_log("try another poi type, backtrack...")
 
+        if (
+            state_key is not None
+            and len(self.collected_plans) == collected_count_at_entry
+        ):
+            self._failed_dfs_states.add(state_key)
         return False, plan
 
     def generate_plan_with_search(self, query):
@@ -1941,8 +2266,10 @@ class NesyAgent(BaseAgent):
             "room_type_mismatch": 0,
             "room_number_mismatch": 0,
             "back_earlier_than_go": 0,
+            "final_day_infeasible": 0,
             "dfs_timeout": False,
             "dfs_no_solution": 0,
+            "memoized_state": 0,
         }
         self.min_intercity_hotel_cost = float('inf')
         self.min_cost_detail = {}
@@ -1952,6 +2279,10 @@ class NesyAgent(BaseAgent):
         self._seen_signatures = set()
         self._skip_to_next_combo = False
         self._inner_transport_cache = {}
+        self._transfer_time_cache = {}
+        self._failed_dfs_states = set()
+        self._reserved_final_attraction = None
+        self._last_reported_search_nodes = -25
 
         # reset the cache before searching
         poi_plan = {}
@@ -1992,8 +2323,10 @@ class NesyAgent(BaseAgent):
         else:
             ranking_hotel = self.ranking_hotel(self.memory["accommodations"], query)
         query_room_number, query_room_type = self.decide_rooms(query)
-        if self.optimization_goal == MIN_TOTAL_COST and query.get("budget") is not None:
-            self.required_budget = query["budget"]
+        if self.optimization_goal == MIN_TOTAL_COST:
+            # No budget means exactly "no upper limit".  Do not ask an LLM to
+            # invent a budget for the cheapest objective.
+            self.required_budget = query.get("budget")
             print("structured budget: ", self.required_budget)
         else:
             self.required_budget = self.extract_budget(query)
@@ -2005,7 +2338,12 @@ class NesyAgent(BaseAgent):
             ranking_hotel, self.memory["accommodations"], "hotel"
         )
 
-        if self.optimization_goal == MIN_TOTAL_COST:
+        if not self.enable_innercity_transport:
+            # Local transport mode is intentionally outside the product scope.
+            # A single hidden duration estimate is used at each transition.
+            self.innercity_transports_ranking_from_query = []
+            print("市内交通方式不参与规划，仅估算活动间移动耗时")
+        elif self.optimization_goal == MIN_TOTAL_COST:
             self.innercity_transports_ranking_from_query = ["walk", "metro", "taxi"]
         else:
             self.innercity_transports_ranking_from_query = self.ranking_innercity_transport_from_query(query)
@@ -2014,9 +2352,8 @@ class NesyAgent(BaseAgent):
                 self.innercity_transports_ranking_from_query[:self.inner_transport_width]
             )
 
-        # Preprocessing above includes LLM ranking calls. Start the requested
-        # 35-second DFS budget only when traversal is actually about to begin,
-        # and remember the LLM counter so calls made inside DFS can be excluded.
+        # Preprocessing above includes LLM ranking calls. Start the configured
+        # wall-clock DFS budget only when traversal is actually about to begin.
         self.dfs_started_at = time.time()
         self.dfs_llm_inference_start = self.llm_inference_time_count
 
@@ -2131,6 +2468,17 @@ class NesyAgent(BaseAgent):
                             self._bt_log("required_budget - intercity_with_hotel_cost <= 100 * people_number * (days-1), backtrack...")
                             continue
 
+                        if not self._cheapest_combo_has_feasible_final_day(
+                            query, poi_plan
+                        ):
+                            self.backtrack_count += 1
+                            self.failure_stats["final_day_infeasible"] += 1
+                            self._bt_log(
+                                "Skip cheapest combination: hotel and return "
+                                "time cannot fit the required final-day attraction"
+                            )
+                            continue
+
                         print("search: ...")
                         self._skip_to_next_combo = False
                         try:
@@ -2143,7 +2491,7 @@ class NesyAgent(BaseAgent):
                             )
                         except TimeOutError as e:
                             print("TimeOutError")
-                            print(f"[回溯] 超时，共搜索 {self._bt_count} 个方案。尝试返回当前最优部分方案...")
+                            print(f"[回溯] 超时，已记录 {self._bt_count} 次回溯事件。尝试返回当前最优部分方案...")
                             self.failure_stats["dfs_timeout"] = True
                             if len(self.collected_plans) > 0:
                                 print(f"[超时恢复] 返回已收集的 {len(self.collected_plans)} 个方案")
@@ -2162,7 +2510,7 @@ class NesyAgent(BaseAgent):
                             self._skip_to_next_combo = False  # Reset for next combo
                             if self._dfs_timed_out():
                                 print("Searching TIME OUT !!!")
-                                print(f"[回溯] 超时，共搜索 {self._bt_count} 个方案。尝试返回当前最优部分方案...")
+                                print(f"[回溯] 超时，已记录 {self._bt_count} 次回溯事件。尝试返回当前最优部分方案...")
                                 if len(self.collected_plans) > 0:
                                     print(f"[超时恢复] 返回已收集的 {len(self.collected_plans)} 个方案")
                                     return True, {"plans": self.collected_plans, "count": len(self.collected_plans)}
@@ -2222,7 +2570,7 @@ class NesyAgent(BaseAgent):
                         )
                     except TimeOutError as e:
                         print("TimeOutError")
-                        print(f"[回溯] 超时，共搜索 {self._bt_count} 个方案。尝试返回当前最优部分方案...")
+                        print(f"[回溯] 超时，已记录 {self._bt_count} 次回溯事件。尝试返回当前最优部分方案...")
                         if len(self.collected_plans) > 0:
                             print(f"[超时恢复] 返回已收集的 {len(self.collected_plans)} 个方案")
                             return True, {"plans": self.collected_plans, "count": len(self.collected_plans)}
@@ -2240,7 +2588,7 @@ class NesyAgent(BaseAgent):
                         self._skip_to_next_combo = False  # Reset for next combo
                         if self._dfs_timed_out():
                             print("Searching TIME OUT !!!")
-                            print(f"[回溯] 超时，共搜索 {self._bt_count} 个方案。尝试返回当前最优部分方案...")
+                            print(f"[回溯] 超时，已记录 {self._bt_count} 次回溯事件。尝试返回当前最优部分方案...")
                             if len(self.collected_plans) > 0:
                                 print(f"[超时恢复] 返回已收集的 {len(self.collected_plans)} 个方案")
                                 return True, {"plans": self.collected_plans, "count": len(self.collected_plans)}
@@ -2307,6 +2655,9 @@ class NesyAgent(BaseAgent):
         # print(symoblic_query)
 
 
+
+        if not self.enable_innercity_transport:
+            symoblic_query = self._remove_innercity_constraints(symoblic_query)
 
         self.query = symoblic_query
 

@@ -1208,10 +1208,27 @@ def Is_space_correct(symbolic_input, plan_json, verbose=False):
     return table_statistics, error_info
 
 
-def func_commonsense_constraints(symbolic_input, plan_json, verbose=False, lang=None):
+def func_commonsense_constraints(
+    symbolic_input,
+    plan_json,
+    verbose=False,
+    lang=None,
+    check_innercity=True,
+):
     _set_tool_lang(lang or _infer_lang(symbolic_input))
 
-    func_list = [Is_activity_grounded, Is_intercity_transport_correct, Is_attractions_correct, Is_hotels_correct, Is_restaurants_correct, Is_transport_correct, Is_time_correct, Is_space_correct]
+    func_list = [
+        Is_activity_grounded,
+        Is_intercity_transport_correct,
+        Is_attractions_correct,
+        Is_hotels_correct,
+        Is_restaurants_correct,
+    ]
+    if check_innercity:
+        func_list.append(Is_transport_correct)
+    func_list.append(Is_time_correct)
+    if check_innercity:
+        func_list.append(Is_space_correct)
     succ_flag = True
     error_list = []
     for func in func_list:

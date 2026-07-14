@@ -34,6 +34,7 @@ from chinatravel.agent.nesy_agent.prompts import (
     INNERCITY_TRANSPORTS_SELECTION_INSTRUCTION,
 )
 from chinatravel.agent.nesy_agent.nesy_agent import NesyAgent
+from chinatravel.agent.nesy_agent.day_completeness import choose_next_activity_type
 from chinatravel.optimization import MIN_TOTAL_COST
 
 from chinatravel.data.load_datasets import load_query, load_json_file, save_json_file
@@ -220,32 +221,13 @@ class LLMDrivenAgent(NesyAgent):
         return plan
 
     def select_next_poi_type(self, candidates_type, plan, poi_plan, current_day, current_time, current_position):
-
-        if current_day == self.query["days"]-1:
-            if time_compare_if_earlier_equal(poi_plan["back_transport"]["BeginTime"], add_time_delta(current_time, 180)):
-                return "back-intercity-transport", ["back-intercity-transport"]
-
-        time_before = time.time()
-        query_message=[{"role": "user", "content": NEXT_POI_TYPE_INSTRUCTION.format(self.query['nature_language'], poi_plan,current_day+1, current_time, current_position,candidates_type)}]
-        answer=self.backbone_llm(query_message,one_line=False)
-
-        self.llm_rec_count += 1
-
-
-        self.llm_inference_time_count += time.time() - time_before
-
-        poi_type=None
-        match = re.search(r'Type:\s*(\w+)', answer)
-        if match:
-            poi_type = match.group(1)
-        else:
-            self.llm_rec_format_error += 1
-
-        if poi_type is not None and poi_type in candidates_type:
-            return poi_type, candidates_type
-        else:
-            print("The selected POI type is not in the candidate POI type list.")
-            return candidates_type[0], candidates_type
+        missing_items = self._missing_day_items(
+            self.query, plan, poi_plan, current_day
+        )
+        poi_type = choose_next_activity_type(
+            candidates_type, missing_items, current_time
+        )
+        return poi_type, candidates_type
 
 
 
@@ -324,7 +306,12 @@ class LLMDrivenAgent(NesyAgent):
 
     def ranking_restaurants(self, plan, poi_plan, current_day, current_time, current_position, intercity_with_hotel_cost):
 
-        if self.optimization_goal == MIN_TOTAL_COST and self.cost_only_search:
+        if self.optimization_goal == MIN_TOTAL_COST:
+            # Restaurant preference is not part of the current product input;
+            # asking the LLM here made it invent a budget when the user omitted
+            # one.  The cheapest branch can deterministically rank the verified
+            # inventory by price while attraction ranking still honours an
+            # explicit sightseeing preference such as historical culture.
             return self._budget_aware_ranking(
                 [], self.memory["restaurants"], "restaurant", self.poi_candidate_width
             )
