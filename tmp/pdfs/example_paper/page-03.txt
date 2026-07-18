@@ -1,0 +1,58 @@
+                                                              Title  Suppressed  Due  to  Excessive  Size
+
+110      computational   eﬀiciency   in   temporal   tasks.     Particu-                  gies  also  impede  the  backpropagation  of  gradients  to
+111      larly  when  processing  event-driven  data  and  complex                        shallower  layers,  leading  to  training  instability.   To  ad-
+112      temporal  modeling  tasks,   this  hybrid  architecture  ef-                     dress   the   aforementioned   issues,   this   paper   proposes
+113      fectively  synergizes  the  temporal  modeling  advantages                       STR-Pruner,   a   refine-then-prune   framework   incorpo-
+114      of  SNNs  with  the  global  representation  capabilities  of                    rating  a  Gradient-Preserving  Identity  strategy.
+115     Transformers,  thereby  facilitating  the  construction  of
+116      more  eﬀicient  and  flexible  deep  learning  models.                           3.  Preliminary
+117      Early  attempts,  such  as  Spike-former  (Li  et  al.,            2022),
+118      introduced  Transformer-like  structures  into  SNNs  but                        3.1.  Spiking  neuron
+119      remained    reliant    on    floating-point    operations    (e.g.,              Spiking Neural Networks (SNNs) consist of neurons in-
+120      Softmax)  during  attention  calculation,  which  compro-                        terconnected  via  synapses  that  modulate  signal  propa-
+121      mised    their    compatibility    with    neuromorphic    hard-                 gation   from   presynaptic   to   postsynaptic   units.      Dis-
+122     ware.      To   address   this   limitation,   Spikformer   (Zhou                 tinct   from   Artificial   Neural   Networks   (ANNs)   that
+123      et     al.,2023)     proposed     the     Spiking     Self-Attention             transmit  continuous  activation  values,   SNNs  commu-
+124     (SSA)  mechanism,  which  effectively  replaced  Softmax                          nicate    via    discrete    spikes,    emulating    the    biological
+125     with  spike-based  operations,  thereby  achieving  energy-                       mechanism   of   information   processing.      In   contempo-
+126      eﬀicient    attention    computation.        Subsequently,    the                rary SNN research, the Leaky Integrate-and-Fire (LIF)
+127      Spike-driven   Transformer   (Yao   et   al.,           2023)   further          model   remains   the   predominant   choice   (Zhou   et   al.,
+128      optimized  the  computational  paradigm,  ensuring  that                         2024;    Lee   et   al., 2025;    Zhou   et   al.,  2023;    Yao   et   al.,
+129      all  matrix  multiplications  are  replaced  by  sparse  addi-                   2023).      This   model   characterizes   neuronal   dynamics
+130      tions.   Other  variants,  such  as  QKFormer  (Zhou  et  al.,                   through    a    threshold-triggered    firing    mechanism    fol-
+131      2024),  explore  hierarchical  structures  to  further  boost                    lowed   by   a   membrane   potential   reset.      The   discrete
+132      model    performance,     while    MaxFormer(Fang    et    al.,                  dynamics  are  formulated  as  follows:
+133      2025)  enhances  model  expressivity  by  preserving  high-
+134      frequency information within SNNs.  Despite achieving                                                     Ht =f (Vt−1,Xt),                                              (1)
+135      state-of-the-art   results,   these   methods   process   all   in-
+136      put  tokens  indiscriminately  during  inference.   In  both
+137      static images and DVS event streams, a significant por-
+138      tion  of  tokens  correspond  to  redundant  background  in-                                             St = Θ(Ht−Vth),                                             (2)
+139      formation.    Processing  these  uninformative  tokens  in-
+140      curs  substantial  computational  overhead,  thereby  lim-
+141      iting the practical deployment of Spiking Transformers                                             Vt =Ht(1−St)+Vreset St.                                (3)
+142      on  resource-constrained  edge  devices.                                         Here,  Ht    represents    the    membrane    potential    after
+143                                                                                       synaptic   integration   but   before   spike   generation   at
+144      2.3.  Spiking  Neural  Networks  Pruning                                         time-step t,  while Vt  denotes  the  membrane  potential
+145                                                                                       after  the  reset  mechanism. Xt  represents  the  external
+146     To  enhance  the  computational  eﬀiciency  of  neural  net-                      input, andVth  is the firing threshold.  The output spike
+147     works,  numerous  methods  have  been  proposed,  includ-                         St equals 1 if a spike occurs and 0 otherwise, whereΘ(·)
+148      ing  quantization  (Wang  et  al.,         2019),  knowledge  distil-            is  the  Heaviside  step  function.    Eq.    (1)  describes  the
+149      lation  (Hinton  et  al.,     2015),  and  weight  pruning  (Han                 neuronal   charging   dynamics,   where   the   function f(·)
+150      et   al., 2015).      Among   these,   Token   Pruning,   acting                 varies  across  different  neuron  models.   Eq.   (2)  defines
+151      as  a  dynamic  sparsification  strategy,  has  significantly                    the  spike  generation  process.    Finally,  Eq.    (3)  imple-
+152      reduced   computational   overhead   in   standard   Vision                      ments  the  hard  reset  mechanism  (Ledinauskas  et  al.,
+153     Transformers    by    selectively    discarding    less    informa-               2020),  ensuring  the  potential  returns  to Vreset     imme-
+154      tive  tokens  during  inference  (Rao  et  al.,           2021).    How-         diately  after  firing,  a  strategy  widely  adopted  in  deep
+155      ever,  applying  token  pruning  to  Spiking  Transformers                       SNNs.
+156      poses  unique  challenges.   Existing  works,  such  as  (Liu
+157      et al., 2024),  filter tokens based on average firing rates;
+158      STATA  (Zhuge  et  al.,         2024)  utilizes  time-step  anchor               3.2.  Spiking  transformer
+159      tokens to dynamically evaluate importance; and (Kang                             The   Spike-driven   Transformer   architecture   generally
+160      et  al., 2024)  merges  tokens  based  on  cosine  similarity.                   comprises    four    components:       spiking    patch    embed-
+161      Nevertheless,   the   raw   spiking   signals   relied   upon   by               ding  (SPE),  spike-driven  self-attention  (SDSA),  spik-
+162      these methods are not only highly sensitive to textural                          ing   multi-layer   perceptron   (SMLP),   and   a   classifica-
+163      clutter  or  sensor  noise,  but  their  hard  pruning  strate-                  tion head (CH). Given a 2D image sequenceI, the SPE
+164
+                                                                                      3

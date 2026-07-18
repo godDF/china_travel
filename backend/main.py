@@ -50,8 +50,15 @@ from pydantic import BaseModel
 from chinatravel.agent.llms import Deepseek
 from chinatravel.agent.load_model import init_agent
 from chinatravel.environment.world_env import WorldEnv
-from backend.safety import IntentDecision, classify_intent, precheck_attack, sensitive_reasons, update_traveler_groups
-from backend.rag import RagConfigurationError, RagService
+from backend.safety import (
+    GuardrailClassificationError,
+    IntentDecision,
+    classify_intent,
+    precheck_attack,
+    sensitive_reasons,
+    update_traveler_groups,
+)
+from backend.rag import RagConfigurationError, RagService, RagServiceError
 from backend.reviews import ReviewConflict, ReviewStore, send_to_gohumanloop
 from chinatravel.optimization import (
     DEFAULT_OPTIMIZATION_GOAL,
@@ -96,6 +103,9 @@ env = WorldEnv(lang="zh")
 
 # Supported cities
 SUPPORTED_CITIES = ["北京", "上海", "南京", "苏州", "杭州", "深圳", "成都", "武汉", "广州", "重庆"]
+PLANNING_DFS_TIMEOUT_SECONDS = max(
+    1, int(os.getenv("PLANNING_DFS_TIMEOUT_SECONDS", "30"))
+)
 
 # ===== Pydantic Models =====
 class ChatRequest(BaseModel):
@@ -245,6 +255,7 @@ async def create_session() -> dict:
             "pending_plan": None,
             "progress": [],
             "last_intent": None,
+            "rag_job_id": None,
             "traveler_groups": [],
             "sensitive": False,
             "sensitive_reasons": [],
@@ -272,6 +283,7 @@ def reset_session_for_next_input(session: dict, clear_messages: bool = True) -> 
         "pending_plan": None,
         "progress": [],
         "last_intent": None,
+        "rag_job_id": None,
         "traveler_groups": [],
         "sensitive": False,
         "sensitive_reasons": [],
@@ -424,7 +436,7 @@ async def generate_plan_background(session: dict):
         "cache_dir": os.path.join(project_root, "cache"),
         "log_dir": os.path.join(project_root, "cache", "web", session["session_id"]),
         "debug": True,  # Enable debug so Logger forwards to our interceptor; spam suppressed by _bt_log
-        "time_cut": 20,
+        "time_cut": PLANNING_DFS_TIMEOUT_SECONDS,
         "max_plans": 3,
         # budget_fit needs a wider pool because later, more expensive plans may
         # be closer to the budget. min_total_cost searches cheap-first, so the
@@ -552,7 +564,7 @@ async def generate_plan_background(session: dict):
                     "backtrack_count", getattr(agent, "backtrack_count", "?")
                 )
                 reason = (
-                    f"⏱ 搜索超时（20秒内未找到完整方案）。\n\n"
+                    f"⏱ 搜索超时（{PLANNING_DFS_TIMEOUT_SECONDS}秒内未找到完整方案）。\n\n"
                     f"已搜索 {search_nodes} 个 DFS 节点，发生 {backtracks} 次回溯。\n"
                     f"建议：减少天数、增加预算，或换一个城市试试。"
                 )
@@ -946,6 +958,74 @@ async def api_reset_session(session_id: str):
     return {"ok": True, "state": "init"}
 
 
+@app.get("/api/rag-jobs/{job_id}")
+async def api_get_rag_job(job_id: str, session_id: str = Query(...)):
+    session = await get_session(session_id)
+    if not session:
+        raise HTTPException(404, "Session not found")
+    if session.get("rag_job_id") != job_id:
+        raise HTTPException(404, "RAG 查询任务不属于当前会话或已结束")
+
+    try:
+        job = await rag_service.get_job(job_id)
+    except (RagConfigurationError, RagServiceError) as exc:
+        message = f"知识库查询暂时不可用：{exc}"
+        response = {"type": "error", "message": message, "reset": True}
+        reset_session_for_next_input(session)
+        return response
+    except Exception:
+        message = "知识库查询暂时不可用：Agentic RAG 服务发生内部错误"
+        response = {"type": "error", "message": message, "reset": True}
+        reset_session_for_next_input(session)
+        return response
+
+    if job["status"] in {"queued", "running"}:
+        return {
+            "type": "rag_status",
+            "status": job["status"],
+            "job_id": job_id,
+            "progress": job["progress"],
+            "current_stage": job["current_stage"],
+            "events": job["events"],
+        }
+
+    if job["status"] == "failed":
+        reason = (job.get("error") or {}).get("message") or "Agentic RAG 查询失败"
+        message = f"知识库查询暂时不可用：{reason}"
+        response = {
+            "type": "error",
+            "message": message,
+            "trace": job.get("events", []),
+            "reset": True,
+        }
+        reset_session_for_next_input(session)
+        return response
+
+    result = job["result"]
+    session["messages"].append({
+        "role": "assistant",
+        "content": result["answer"],
+        "type": "rag",
+        "sources": result["sources"],
+        "trace_id": result["trace_id"],
+        "rag_meta": result["meta"],
+        "trace": result["trace"],
+        "timestamp": datetime.now().isoformat(),
+    })
+    response = {
+        "type": "rag",
+        "message": result["answer"],
+        "found": result["found"],
+        "sources": result["sources"],
+        "trace_id": result["trace_id"],
+        "rag_meta": result["meta"],
+        "trace": result["trace"],
+        "reset": True,
+    }
+    reset_session_for_next_input(session)
+    return response
+
+
 @app.get("/api/admin/reviews")
 async def admin_reviews(status: Optional[str] = Query(default=None), authorization: Optional[str] = Header(default=None)):
     require_admin_token(authorization)
@@ -1010,6 +1090,15 @@ async def api_chat(req: ChatRequest):
     if not session:
         raise HTTPException(404, "Session not found")
 
+    if session.get("state") == "rag_querying" and session.get("rag_job_id"):
+        return {
+            "type": "rag_status",
+            "status": "running",
+            "job_id": session["rag_job_id"],
+            "progress": 0,
+            "message": "Agentic RAG 正在查询知识库",
+        }
+
     # A terminal response may have been displayed while the explicit reset
     # request was interrupted. Treat the next user message as a fresh request
     # instead of merging it with the completed plan.
@@ -1050,11 +1139,24 @@ async def api_chat(req: ChatRequest):
             session["pending_mixed_query"] = None
         else:
             decision = classify_intent(req.message, llm, session.get("state", "init"))
-    except RuntimeError:
+    except GuardrailClassificationError as exc:
         session["state"] = "guardrail_error"
-        message = "安全检查暂时不可用，请稍后重试。"
-        session["messages"].append({"role": "assistant", "content": message, "type": "error", "timestamp": datetime.now().isoformat()})
-        response = {"type": "error", "message": message, "reset": True}
+        message = f"安全检查暂时不可用，请稍后重试。\n原因：{exc.public_reason}。"
+        session["messages"].append({
+            "role": "assistant",
+            "content": message,
+            "type": "error",
+            "error_code": exc.code,
+            "timestamp": datetime.now().isoformat(),
+        })
+        response = {
+            "type": "error",
+            "state": "guardrail_error",
+            "message": message,
+            "error_code": exc.code,
+            "error_reason": exc.public_reason,
+            "reset": True,
+        }
         reset_session_for_next_input(session)
         return response
 
@@ -1087,25 +1189,33 @@ async def api_chat(req: ChatRequest):
 
     if decision.intent == "rag_query":
         try:
-            result = await rag_service.answer(rag_query_text, decision.rag_category, llm)
-            session["state"] = "idle"
-            session["messages"].append({
-                "role": "assistant",
-                "content": result["answer"],
-                "type": "rag",
-                "sources": result["sources"],
-                "timestamp": datetime.now().isoformat(),
-            })
-            response = {
-                "type": "rag", "message": result["answer"], "found": result["found"],
-                "sources": result["sources"], "reset": True,
+            job = await rag_service.start_job(
+                rag_query_text,
+                decision.rag_category,
+                session_id=req.session_id,
+                request_id=uuid.uuid4().hex,
+            )
+            session["state"] = "rag_querying"
+            session["rag_job_id"] = job["job_id"]
+            return {
+                "type": "rag_status",
+                "status": job["status"],
+                "job_id": job["job_id"],
+                "progress": job["progress"],
+                "message": "Agentic RAG 正在查询知识库",
             }
-            reset_session_for_next_input(session)
-            return response
-        except Exception as exc:
+        except (RagConfigurationError, RagServiceError) as exc:
             # Do not fall through into planning or fabricate an answer.
             session["state"] = "rag_error"
             message = f"知识库查询暂时不可用：{exc}"
+            session["messages"].append({"role": "assistant", "content": message, "type": "error", "timestamp": datetime.now().isoformat()})
+            response = {"type": "error", "message": message, "reset": True}
+            reset_session_for_next_input(session)
+            return response
+        except Exception:
+            # Unexpected implementation details are not exposed to the browser.
+            session["state"] = "rag_error"
+            message = "知识库查询暂时不可用：Agentic RAG 服务发生内部错误"
             session["messages"].append({"role": "assistant", "content": message, "type": "error", "timestamp": datetime.now().isoformat()})
             response = {"type": "error", "message": message, "reset": True}
             reset_session_for_next_input(session)

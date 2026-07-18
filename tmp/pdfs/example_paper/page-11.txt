@@ -1,0 +1,58 @@
+                                                             Title  Suppressed  Due  to  Excessive  Size
+
+550      Li, Y., Deng, S., Dong, X., Gong, R., and Gu, S.  A free                        Yao,   M.,   Hu,   J.,   Zhou,   Z.,   Yuan,   L.,   Tian,   Y.,   XU,
+551         lunch  from  ann:   Towards  eﬀicient,  accurate  spiking                       B.,  and  Li,  G.   Spike-driven  transformer.   In  Thirty-
+552         neural   networks   calibration.     In   International   con-                  seventh  Conference  on  Neural  Information  Process-
+553         ference  on  machine  learning,  volume  139,  pp.  6316–                       ing   Systems,   2023.      URL        https://openreview.net/
+554         6325.  PMLR,  2021.                                                             forum?id=9FmolyOHi5.
+555      Li,     Y.,     Lei,     Y.,     and    Yang,     X.         Spikeformer:       AZenke,   F.   and   Ganguli,   S.      Superspike:     Supervised
+556         novel architecture for training high-performance low-                           learning  in  multilayer  spiking  neural  networks.  Neu-
+557         latency    spiking    neural    network.         arXiv    preprint              ral  computation,  30(6):1514–1541,  2018.
+558         arXiv:2211.10686,  2022.
+559                                                                                      Zheng,  H.,  Wu,  Y.,  Deng,  L.,  Hu,  Y.,  and  Li,  G.   Go-
+560      Liu,  Y.,  Xiao,  S.,  Li,  B.,  and  Yu,  Z.  Sparsespikformer:                   ing  deeper  with  directly-trained  larger  spiking  neu-
+561         A co-design framework for token and weight pruning                              ral   networks.     In   Proceedings   of   the   AAAI   confer-
+562         in  spiking  transformer.  In  ICASSP  2024-2024  IEEE                          ence  on  artificial  intelligence,  volume  35,  pp.  11062–
+563         International  Conference  on  Acoustics,  Speech  and                          11070,  2021.
+564         Signal  Processing  (ICASSP),  pp.  6410–6414.  IEEE,
+565         2024.                                                                        Zheng,  N.  and  Mazumder,  P.    A  low-power  hardware
+566      Lv,    C.,    Xu,    J.,    and    Zheng,    X.        Spiking    convolu-         architecture  for  on-line  supervised  learning  in  multi-
+567         tional neural networks for text classification.  In The                         layer spiking neural networks.  In 2018 IEEE Interna-
+568         Eleventh International Conference on Learning Rep-                              tional Symposium on Circuits and Systems (ISCAS),
+569         resentations,    2023.       URL      https://openreview.net/                   pp.  1–5.  IEEE,  2018.
+570         forum?id=pgU3k7QXuz0.                                                        Zhou,  C.,  Zhang,  H.,  Zhou,  Z.,  Yu,  L.,  Huang,  L.,  Fan,
+571                                                                                         X.,  Yuan,  L.,  Ma,  Z.,  Zhou,  H.,  and  Tian,  Y.    Qk-
+572      Maass, W.  Networks of spiking neurons:  the third gen-                            former:     Hierarchical   spiking   transformer   using   qk
+573         eration  of  neural  network  models.   Neural  networks,                       attention.   Advances  in  Neural  Information  Process-
+574         10(9):1659–1671,  1997.                                                         ing  Systems,  37:13074–13098,  2024.
+575      Neftci,   E.  O.,   Mostafa,   H.,   and  Zenke,   F.    Surrogate
+576         gradient  learning  in  spiking  neural  networks:   Bring-                  Zhou,  Z.,  Zhu,  Y.,  He,  C.,  Wang,  Y.,  YAN,  S.,  Tian,
+577         ing the power of gradient-based optimization to spik-                           Y.,   and   Yuan,   L.     Spikformer:    When   spiking   neu-
+578         ing  neural  networks.  IEEE  Signal  Processing  Maga-                         ral   network   meets   transformer.      In   The   Eleventh
+579         zine,  36(6):51–63,  2019.                                                      International   Conference   on   Learning   Representa-
+580                                                                                         tions,    2023.       URL    https://openreview.net/forum?
+581      Rao,   Y.,   Zhao,   W.,   Liu,   B.,   Lu,   J.,   Zhou,   J.,   and              id=frE4fUwz_h.
+582         Hsieh,  C.-J.  Dynamicvit:   Eﬀicient  vision  transform-
+583         ers   with   dynamic   token   sparsification.       Advances                Zhou,   Z.,   Che,   K.,   Niu,   J.,   Yao,   M.,   Li,   G.,   Yuan,
+584         in  neural  information  processing  systems,  34:13937–                        L.,   Luo,   G.,   and   Zhu,   Y.      Spatial–temporal   spik-
+585         13949,  2021.                                                                   ing   feature   pruning   in   spiking   transformer.     IEEE
+586                                                                                         Transactions  on  Cognitive  and  Developmental  Sys-
+587      Roy,   K.,   Jaiswal,   A.,   and   Panda,   P.     Towards   spike-               tems,    17(3):644–658,    2025.        doi:      10.1109/TCDS.
+588         based  machine  intelligence  with  neuromorphic  com-                          2024.3500018.
+589         puting.   Nature,  575(7784):607–617,  2019.
+590      Sengupta,  A.,  Ye,  Y.,  Wang,  R.,  Liu,  C.,  and  Roy,  K.                  Zhu,  R.-J.,  Zhang,  M.,  Zhao,  Q.,  Deng,  H.,  Duan,  Y.,
+591         Going  deeper  in  spiking  neural  networks:    Vgg  and                       and  Deng,   L.-J.    Tcja-snn:    Temporal-channel  joint
+592         residual  architectures.  Frontiers  in  neuroscience,  13:                     attention  for  spiking  neural  networks.   IEEE  Trans-
+593         95–104,  2019.                                                                  actions  on  Neural  Networks  and  Learning  Systems,
+594                                                                                         36(3):5112–5125,   2025.    doi:    10.1109/TNNLS.2024.
+595      Wang,    K.,    Liu,    Z.,    Lin,    Y.,    Lin,    J.,    and    Han,    S.     3377717.
+596         Haq:   Hardware-aware  automated  quantization  with                         Zhuge,  Z.,  Wang,  P.,  Yao,  X.,  and  Cheng,  J.   Towards
+597         mixed  precision.   In  Proceedings  of  the  IEEE/CVF                          eﬀicient  spiking  transformer:   a  token  sparsification
+598         conference  on  computer  vision  and  pattern  recogni-                        framework   for   training   and   inference   acceleration.
+599         tion,  pp.  8612–8620,  2019.                                                   In  Forty-first  International  Conference  on  Machine
+600      Wu,     Y.,     Deng,     L.,     Li,     G.,     Zhu,     J.,     and    Shi,     L.Learning,  2024.
+601         Spatio-temporal  backpropagation  for  training  high-
+602         performance   spiking   neural   networks.     Frontiers   in
+603         neuroscience,  12:331,  2018.
+604
+                                                                                     11

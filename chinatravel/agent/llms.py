@@ -52,6 +52,10 @@ class AbstractLLM(ABC):
         self.input_token_count = 0
         self.output_token_count = 0
         self.input_token_maxx = 0
+        # Keep the latest provider exception available to callers that need
+        # to present a safe, classified failure reason.  The exception itself
+        # is never returned to the browser.
+        self.last_error = None
         pass
 
     def __call__(self, messages, one_line=True, json_mode=False):
@@ -109,11 +113,13 @@ class Deepseek(AbstractLLM):
             kwargs["stop"] = ["\n"]
         elif json_mode:
             kwargs["response_format"] = {"type": "json_object"}
+        self.last_error = None
         try:
             res_str = self._send_request(messages, kwargs)
             if json_mode:
                 res_str = repair_json(res_str, ensure_ascii=False)
         except Exception as e:
+            self.last_error = e
             print(e)
             res_str = '{"error": "Request failed, please try again."}'
         return res_str

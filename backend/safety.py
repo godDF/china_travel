@@ -58,6 +58,43 @@ class IntentDecision:
         return asdict(self)
 
 
+class GuardrailClassificationError(RuntimeError):
+    """A guardrail failure with a browser-safe reason and stable error code."""
+
+    def __init__(self, code: str, public_reason: str):
+        super().__init__(public_reason)
+        self.code = code
+        self.public_reason = public_reason
+
+
+def _provider_failure(last_error: Exception) -> GuardrailClassificationError:
+    """Convert provider exceptions without exposing credentials or payloads."""
+    error_name = type(last_error).__name__.lower()
+    status_code = getattr(last_error, "status_code", None)
+
+    if "timeout" in error_name or isinstance(last_error, TimeoutError):
+        return GuardrailClassificationError(
+            "llm_timeout", "大模型安全分类请求超时"
+        )
+    if status_code in {401, 403} or any(
+        name in error_name for name in ("authentication", "permissiondenied")
+    ):
+        return GuardrailClassificationError(
+            "llm_authentication_failed", "大模型 API Key 错误、失效或无访问权限"
+        )
+    if status_code in {402, 429} or "ratelimit" in error_name:
+        return GuardrailClassificationError(
+            "llm_rate_limited", "大模型服务限流、额度或余额不足"
+        )
+    if "connection" in error_name:
+        return GuardrailClassificationError(
+            "llm_connection_failed", "无法连接大模型安全分类服务"
+        )
+    return GuardrailClassificationError(
+        "llm_request_failed", "大模型安全分类服务请求失败"
+    )
+
+
 def _contains_any(text: str, terms: tuple[str, ...]) -> bool:
     lowered = text.lower()
     return any(term.lower() in lowered for term in terms)
@@ -110,20 +147,53 @@ rag_category 只能是 child_ticket、elderly_ticket、student_ticket、flight_s
 只返回 JSON：{{"intent":"...","rag_category":null,"mixed_request":false,"reason":"..."}}
 
 用户最新输入：{text}"""
-    raw = llm([{"role": "user", "content": prompt}], one_line=False, json_mode=True)
+    try:
+        raw = llm([{"role": "user", "content": prompt}], one_line=False, json_mode=True)
+    except Exception as exc:
+        raise _provider_failure(exc) from exc
+
+    last_error = getattr(llm, "last_error", None)
+    if last_error is not None:
+        raise _provider_failure(last_error) from last_error
+
     try:
         data = json.loads(raw)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise GuardrailClassificationError(
+            "invalid_json", "大模型没有返回有效 JSON"
+        ) from exc
+
+    if not isinstance(data, dict):
+        raise GuardrailClassificationError(
+            "classification_parse_failed", "安全分类结果解析失败"
+        )
+    if data.get("error"):
+        raise GuardrailClassificationError(
+            "llm_request_failed", "大模型安全分类服务请求失败"
+        )
+
+    try:
         intent = data.get("intent")
         category = data.get("rag_category")
         if intent not in INTENTS:
-            raise ValueError("invalid intent")
+            raise GuardrailClassificationError(
+                "invalid_intent",
+                "大模型返回的 intent 不属于规定的四种类型",
+            )
         if category not in RAG_CATEGORIES:
             category = infer_rag_category(text)
         if intent == "rag_query" and category is None:
-            raise ValueError("rag query without category")
+            raise GuardrailClassificationError(
+                "classification_parse_failed",
+                "安全分类结果缺少有效的 RAG 查询类别",
+            )
         return IntentDecision(intent, category, bool(data.get("mixed_request")), str(data.get("reason", "")))
+    except GuardrailClassificationError:
+        raise
     except Exception as exc:
-        raise RuntimeError("安全与意图分类失败") from exc
+        raise GuardrailClassificationError(
+            "classification_parse_failed", "安全分类结果解析失败"
+        ) from exc
 
 
 def update_traveler_groups(text: str, current: list[str] | None = None) -> list[str]:

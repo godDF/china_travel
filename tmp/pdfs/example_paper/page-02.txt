@@ -1,0 +1,58 @@
+                                                             Title  Suppressed  Due  to  Excessive  Size
+
+055      frequently  lack  aggregated  local  context  (Zhou  et  al.,                         metric   for   SNNs.     By   rectifying   the   misinterpre-
+056      2025).      For   instance,   background   textures   in   direct-                    tation  of  high-frequency  noise  inherent  in  single-
+057      coded   images   or   sensor   jitter   in   DVS   streams   often                    metric   approaches,    this   mechanism   underscores
+058      exhibit  high  firing  rates,  which  can  mislead  simple  sta-                      the   critical   value   of   joint   spatio-temporal   evalu-
+059      tistical  scorers  into  interpreting  noise  as  salient  infor-                     ation  in  neuromorphic  computing.
+060      mation.      Second,   the   non-differentiability   associated
+061     with  hard  pruning  destabilizes  training.   Conventional                        •   We devise a Gradient-Preserving Identity strategy
+062      acceleration methods typically function by zeroing out                                to  resolve  the  gradient  vanishing  problem  associ-
+063      background  tokens  (Zhuge  et  al.,          2024).   However,  this                 ated  with  hard  pruning.   By  maintaining  informa-
+064      operation  severs  gradient  flow  to  shallower  layers,   ef-                       tion  flow  within  pruned  regions  during  the  back-
+065      fectively   blinding   the   feature   extractor   to   the   global                  ward   pass,   this   approach   stabilizes   learning   dy-
+066      context  during  training.   This  triggers  a  vicious  cycle:                       namics   and   guarantees   continuous   optimization
+067      a   suboptimal   feature   extractor   yields   inaccurate   im-                      without  compromising  inference  eﬀiciency.
+068      portance  scores,   which  in  turn  misguide  the  pruning
+069      process  and  further  degrade  representation  learning.                       2.  Related  Work
+070     To  address  these  challenges,  we  propose  STR-Pruner,
+071      a   universal   framework   underpinned   by   a   refine-then-                 2.1.  Spiking  Neural  Networks
+072      prune   philosophy.      Breaking   away   from   the   conven-                 Spiking   Neural   Networks   (SNNs)   have   introduced   a
+073      tional paradigm of scoring directly on raw features,  we                        novel  computational  paradigm  to  artificial  intelligence
+074      introduce   the   Spatio-temporal   Token   Refiner   (STR).                    by  incorporating  temporal  dynamics  and  spike-based
+075      By  leveraging  spike-driven  depthwise  separable  convo-                      communication  mechanisms.     Unlike  traditional  Arti-
+076      lutions,  the  STR  captures  local  spatio-temporal  corre-                    ficial  Neural  Networks  (ANNs),  SNNs  utilize  discrete
+077      lations   frequently   overlooked   by   global   attention.     It             spikes rather than continuous numerical activations for
+078      functions  as  a  learnable  filter  that  denoises  raw  spikes                information processing and transmission.  These spikes
+079      and projects them onto a structured manifold,  thereby                          are   typically   generated   by   biologically   inspired   neu-
+080      facilitating   reliable   importance   estimation.      Further-                rons,  such  as  the  Hodgkin–Huxley  neuron  (Hodgkin  &
+081      more,   we   propose   a   dual-stream   scoring   mechanism                    Huxley,     1952)  and  the  Leaky  Integrate-and-Fire  (LIF)
+082      that  synthesizes  spike  activation  intensity  (represent-                    neuron (Wu et al.,       2018;   Neftci et al.,    2019).  While this
+083      ing   temporal   activity)   and   spatial   saliency   deviation               event-driven mechanism endows SNNs with significant
+084     (representing   spatial   distinctiveness).       Through   the                  biological   plausibility   and   energy   eﬀiciency,   the   non-
+085      joint   evaluation   of   these   two   metrics,   the   framework              continuity and non-differentiability of spike firing have
+086      achieves  precise  localization  of  high-value  tokens.   Ad-                  long  posed  a  significant  challenge  for  eﬀicient  training.
+087      ditionally,    we   devise   a   Gradient-Preserving   Identity                 Currently,  training  methodologies  for  Deep  SNNs  gen-
+088      strategy.    While  redundancy  is  identified  and  pruned                     erally   fall   into   two   categories:     ANN-to-SNN   conver-
+089      during   the   forward   pass,    pruned   regions   are   popu-                sion methods (Baltes et al.,          2023;   Sengupta et al.,      2019;
+090      lated   with   refined   features   rather   than   zeros   during              ?)    and  direct  training  methods(Zheng  &  Mazumder,
+091      the  backward  pass.   This  strategy  effectively  decouples                   2018;   Li  et  al.,  2021;   Zenke  &  Ganguli,         2018;   Kugele
+092      eﬀiciency   objectives   from   training   stability,   ensuring                et al., 2020).  In contrast to high-latency conversion ap-
+093      continuous   gradient   flow   and   full   spatial   supervision               proaches,   direct  training  enables  the  direct  optimiza-
+094      for  the  optimization  of  the  STR  module.                                   tion   of   feature   refinement   modules,    thereby   achiev-
+095                                                                                      ing   state-of-the-art   performance   with   extremely   low
+096      Our  main  contributions  are  summarized  as  follows:                         latency(Lv  et  al.,    2023;    Zheng  et  al.,   2021;   Eshraghian
+097                                                                                      et  al., 2023).
+098        •   We  diagnose  the  instability  of  raw  spikes  in  SNN
+099            pruning    and    propose    STR-Pruner,    a    universal
+100            framework that prioritizes feature refinement.  We                        2.2.  Spiking  Transformers
+101            design  the  Spatio-temporal  Token  Refiner  (STR),                      With   the   advancement   of   Spiking   Neural   Networks
+102            a  plug-and-play  module  that  effectively  denoises                     (SNNs)  and  the  widespread  application  of  Transform-
+103            spike  signals  to  enable  robust  importance  estima-                   ers  across  various  tasks,  the  convergence  of  these  two
+104            tion.                                                                     paradigms  has  emerged  as  a  significant  research  focus.
+105                                                                                      Integrating   SNNs   into   the   Transformer   architecture
+106        •   We   introduce   a   dual-stream   scoring   mechanism                    not  only  retains  the  robust  global  dependency  model-
+107            that   integrates   activation   intensity   with   spatial               ing  capabilities  of  Transformers  but  also  leverages  the
+108            saliency,  establishing  a  highly  robust  importance                    event-driven   nature   of   SNNs   to   enhance   energy   and
+109
+                                                                                     2

@@ -1,0 +1,56 @@
+000
+001
+002                STR-Pruner:   Spatio-temporal  Token  Refinement  for  Robust  Spiking
+003                                                Transformer  Pruning  (ICML  2026)
+004
+005
+006
+007                                                              Anonymous  Authors1
+008
+009
+010                                   Abstract                                                our    method    reduces    computational    opera-
+011                                                                                           tions   (OPs)   by   52.2%   and   energy   consump-
+012            Spiking    Transformers    synergize    the    global                          tion   by   48.0%   while   matching   or   even   sur-
+013            modeling   capabilities   of   self-attention   with                           passing   the   accuracy   of   unpruned   baselines,
+014            the   energy   eﬀiciency   of   Spiking   Neural   Net-                        setting  a  new  benchmark  for  eﬀicient  neuro-
+015            works   (SNNs);   however,   the   quadratic   com-                            morphic  computing.
+016            putational   complexity   of   attention   relative
+017            to    token    sequence    length    remains    a    criti-
+018            cal   bottleneck   for   edge   deployment.     Imple-
+019            menting    dynamic    token    pruning    in    SNNs                     1.  Introduction
+020            presents   unique   challenges,    primarily   stem-
+021            ming  from  the  diﬀiculty  of  accurately  evalu-                       Spiking  Neural  Networks  (SNNs),  widely  heralded  as
+022            ating   token   importance   due   to   the   stochas-                   the  third  generation  of  neural  networks  (Maass,            1997),
+023            tic   nature   of   raw   spike   signals   (noise),    as               deliver   exceptional   energy   eﬀiciency   via   their   sparse,
+024            well   as   training   instability   induced   by   non-                 event-driven   computing   paradigm   (Roy   et   al.,            2019).
+025            differentiable hard pruning.   To address these                          By  substituting  energy-intensive  floating-point  multi-
+026            issues,   we   propose   STR-Pruner,   a   universal                     plications  with  simple  accumulation  (AC)  operations,
+027            refine-then-prune   framework   centered   on   a                        SNNs  have  emerged  as  ideal  candidates  for  neuromor-
+028            Spatio-temporal   Token   Refiner   (STR)   that                         phic   hardware   (Davies   et   al.,      2018).       Recently,    the
+029            leverages    depthwise    separable    convolutions                      amalgamation   of   SNNs   with   Transformers   has   given
+030            to   denoise   features   and   capture   local   corre-                 rise  to  Spiking  Transformers  (e.g.,   Spikformer  (Zhou
+031            lations,   thereby  ensuring  robust  importance                         et   al., 2023),    Spike-driven   Transformer   (Yao   et   al.,
+032            estimation.   Additionally,  a  dual-stream  scor-                       2023)).      These   architectures   synergize   the   global   re-
+033                                                                                     ceptive  field  of  self-attention  with  spike-based  sparsity
+034            ing    mechanism    is    designed    to    incorporate                  to  achieve  state-of-the-art  (SOTA)  performance.    Yet,
+035            both   temporal   activity   (spike   activation   in-                   a  fundamental  paradox  persists:    while  spikes  exhibit
+036            tensity)   and   spatial   distinctiveness   (spatial                    element-wise  sparsity,  the  self-attention  mechanism  re-
+037            saliency deviation),  enabling the precise iden-                         mains  bound  by  quadratic  computational  complexity
+038            tification  of  high-value  tokens  through  joint                       relative  to  the  token  sequence  length.    The  indiscrim-
+039            decision-making.      Furthermore,   a   Gradient-                       inate  processing  of  redundant  tokens—whether  static
+040            Preserving  Identity  strategy  is  introduced  to                       background  patches  or  environmental  clutter  in  DVS
+041            decouple  forward  redundancy  reduction  from                           streams—incurs  substantial  computational  waste,  cre-
+042            backward   optimization,   maintaining   contin-                         ating  a  bottleneck  that  impedes  the  edge  deployment
+043            uous    gradient    flow    for    background    tokens                  of  Spiking  Transformers.
+044            throughout  training.    Extensive  experiments                          Although dynamic token pruning has revolutionized ef-
+045            on    static    (ImageNet,     CIFAR)    and    neuro-                   ficiency  in  standard  Vision  Transformers,  adapting  it
+046            morphic    (DVS)    datasets    demonstrate    that                      to the spiking domain presents unique challenges.   The
+047            STR-Pruner   achieves   an   optimal   accuracy-                         direct  translation  of  ANN  pruning  paradigms  encoun-
+048            eﬀiciency   trade-off;    notably,    on   CIFAR-10,                     ters  two  primary  hurdles  (Zhuge  et  al.,           2024).    First,
+049         1Anonymous  Institution,  Anonymous  City,  Anonymous                       importance estimation derived from raw spikes is inher-
+050     Region,  Anonymous  Country.   Correspondence  to:   Anony-                     ently  unreliable.    Unlike  continuous  ANN  activations,
+051     mous  Author  <anon.email@domain.com>.                                          where magnitude correlates strongly with semantic im-
+052     Preliminary  work.   Under  review  by  the  International  Con-                portance,   SNN   activations   are   discrete,   binary,   and
+053     ference  on  Machine  Learning  (ICML).   Do  not  distribute.                  often   stochastic.      Furthermore,   raw   spiking   features
+054
+                                                                                    1

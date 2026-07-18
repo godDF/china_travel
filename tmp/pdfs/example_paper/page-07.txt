@@ -1,0 +1,58 @@
+                                                           Title  Suppressed  Due  to  Excessive  Size
+
+330     Algorithm 1 Training Pipeline of Spikformer with STR                          son  of  our  proposed  STR-Pruner  against  state-of-the-
+331     and  Pruning                                                                  art    SNN    pruning    methods    on    small-scale    datasets.
+332       1:  Input:  ImagesI, BlocksL, Keep ratesR ={rl}Ll=1                         Our   method   consistently   achieves   superior   accuracy-
+333       2:  Output:   Predictiony                                                   eﬀiciency  trade-offs  across  both  static  and  neuromor-
+334       3:  X← SPS(I)                      ▷  Patch  Splitting                      phic   benchmarks.       Specifically,   on   CIFAR-10,   STR-
+335       4:  for l = 1  to L  do                                                     Pruner   attains   a   state-of-the-art   accuracy   of   95.26%
+336       5:     k ←⌊N ·rl⌋                                                           (+0.07% over the baseline) while retaining only 25% of
+337       6:     {Step  1:   STR  &  Dual-Criteria  Scoring}                          the  tokens  (Navg = 0.25×).   This  significantly  outper-
+338       7:     Xguide ←X+ STR(X)       ▷  Refine  features                          forms  SparseSpikformer,  which  requires  an  85%  reten-
+339       8:     Sact        ←                 Mean(|Xguide|);   Ssal        ←        tion  ratio  to  achieve  a  lower  accuracy  of  95.18%,  and
+340              Mean(|Xguide−µ|)                                                     AT-SNN,  which  achieves  95.06%  with  a  slightly  higher
+341       9:     S ← Norm(Sact)+ Norm(Ssal)                                           retention   ratio   of   0.28×.       Even   with   an   extremely
+342     10:      {Step  2:   Selection  &  Sparse  Computation}                       low  retention  ratio  of 0.20×,  our  method  maintains  a
+343     11:      I ← TopK(S,k)                                                        competitive  accuracy  of  95.06%.Notably,  on  the  more
+344     12:      Xkeep ← Gather(Xguide,I)                                             challenging   CIFAR-100   dataset   where   most   compet-
+345     13:      Xkeep ←Xkeep + SSA(Norm(Xkeep))                                      ing  methods  suffer  from  accuracy  degradation—for  in-
+346     14:      Xkeep ←Xkeep + MLP(Norm(Xkeep))                                      stance,  SparseSpikformer  drops  by  up  to  1.43%—our
+347     15:      {Step  3:   Identity  Restoration}                                   method improves the baseline  performance by +0.17%
+348     16:      X[I]←Xkeep       ▷  Update  foreground,  keep                        with  a 0.60×  retention  ratio.   Even  when  further  com-
+349              background                                                           pressed  to 0.55×,  STR-Pruner  still  surpasses  the  base-
+350     17:   end  for                                                                line   with   78.29%   accuracy   (+0.08%),   demonstrating
+351     18:   return  Linear(GlobalAvgPool(X))                                        that   the   STR   module   effectively   enhances   semantic
+352                                                                                   features    while    filtering    background    noise.        Further-
+353                                                                                   more,    on   the   neuromorphic   DVS-CIFAR10   dataset,
+354     Implementation  Details.     We  generally  adhere  to  the                   STR-Pruner   exhibits   exceptional   robustness   to   tem-
+355     hyperparameter   settings   and   architectural   configura-                  poral   noise,    achieving   82.1%   accuracy   (+1.2%   over
+356     tions   described   in   the   original   Spikformer   and   Max-             baseline)   with   a  0.78×   retention   ratio.      This   result
+357     Former  papers  for  baseline  comparisons  (Zhou  et  al.,                   surpasses  the  second-best  method,  STATA,  by  a  sub-
+358     2023;    Fang   et   al., 2025).     Given   the   additional   com-          stantial   margin   of   1.4%,   thereby   establishing   a   new
+359     plexity  introduced  by  the  proposed  STR  module,   we                     benchmark  for  eﬀicient  Spiking  Transformers.
+360     adapted  the  training  schedule  to  ensure  optimal  con-                   Comparison with different Spiking Transformers on CI-
+361     vergence.    The  STR  module  is  integrated  before  each                   FAR10/100  and  neuromorphic  Datasets.    As  detailed
+362     Transformer block.   All models are trained on NVIDIA                         in Table    2, while the integration of the STR module in-
+363     RTX-3090  GPUs,  utilizing  the  CuPy  library  for  accel-                   duces  a  slight  increase  in  parameter  count  (e.g.,  from
+364     erated  training.For  the  static  CIFAR-10/100  datasets,                    6.57M   to   7.62M   on   the   Max-Former   backbone),   this
+365     input  images  are  resized  to 32×32  and  tokenized  into                   marginal  overhead  is  well-justified  by  the  substantial
+366     64 patches.   We train the models on a single GPU with                        performance  gains.    Compared  to  heavy  architectures
+367     a  batch  size  of  128  and  simulation  time  steps T  = 4.                 like   ResNet-19   (12.63M)   or   S-Transformer   (10.28M),
+368     The  initial  learning  rate  is  set  to  1e-3,  and  the  models            our  STR-Pruner  achieves  superior  accuracy  with  a  sig-
+369     are   trained   for   410   epochs.     Standard   data   augmen-             nificantly  lighter  model  footprint.    More  importantly,
+370     tation   techniques,    including   Random   Augment   and                    the  parameter  increase  is  static,  whereas  the  computa-
+371     Mixup,   are  employed.For  the  neuromorphic  datasets,                      tional  cost  is  dynamic.   By  pruning  30%  to  50%  of  the
+372     CIFAR10-DVS   and   DVS128   Gesture,   inputs   are   re-                    tokens  (as  indicated  by  the  retention  ratios  of  0.7  and
+373     sized  to 128×128  with  a  patch  size  of 16×16,  and  the                  0.5),   STR-Pruner   drastically   reduces   the   number   of
+374     time  steps  are  set  to T  = 16.    For  these  datasets,  we               synaptic  operations  (SOPs)  in  the  subsequent  Trans-
+375     adopt a learning rate of 1.5e-3 and train for 160 epochs.                     former   blocks.      This   demonstrates   that   our   method
+376     We  evaluate  various  token  keep  rates  across  different                  strikes  an  optimal  balance  between  architectural  com-
+377     datasets  to  analyze  the  trade-off  between  performance                   plexity  and  inference  eﬀiciency,  making  it  highly  suit-
+378     and  eﬀiciency.                                                               able for deployment on resource-constrained neuromor-
+379                                                                                   phic  hardware.
+380
+381     5.2.  Performance  Comparison
+382     Comparison     with     traditional     pruning     methods     on
+383     Spikformer.Table         1  presents   a   quantitative   compari-
+384
+                                                                                   7

@@ -1,0 +1,61 @@
+                                                                              Title  Suppressed  Due  to  Excessive  Size
+
+385        Table  1.   Comparison  of  TP-Spikformer  on  small-scale  datasets.   ’S’  means  the  method  doesn’t  add  extra  parameters  or
+386        need   retraining.  Navg   is   the   average   token   retention   ratio.   †   is   an   estimated   token   retention   ratio   based   on   reported
+387        metrics.   Top  three  results  are  highlighted  as                      first,   second,  and         third.
+388                              Method                                           S                             CIFAR-10                                                  CIFAR-100                                           DVS-CIFAR10
+389                                                                         T     Navg               Acc.  (%)           T     Navg                Acc.  (%)            T      Navg             Acc.  (%)
+390          Spikformer(Zhou  et  al.,            2023)                    -        4      ×1                95.19Base   4      ×1                 78.21   Base        16      ×1                80.9  Base
+391                                                                   7        4    ×0.85          95.18    (-0.01)      4     ×0.85           77.70      (-0.51)      16    ×0.85           79.3      (-1.6)
+392          SparseSpikformer(Liu  et  al.,              2024)        7        4    ×0.70          95.03    (-0.16)      4     ×0.70           77.07      (-1.14)      16       ×0.70           78.4   (-2.5)
+393                                                                   7        4    ×0.63          94.77    (-0.42)      4     ×0.63           76.78      (-1.43)      16       ×0.63           79.1   (-1.8)
+394                                                                                                95.06    (-0.13)      4     ×0.75             78.14    (-0.07)       -                   -                             -
+395          AT-SNN(Kang  et  al.,             2024)          7        4    ×0.287        4×0.21   94.88    (-0.31)      4       ×0.58           77.27    (-0.94)       -                   -                             -
+396
+397          STATA(Zhuge  et  al.,            2024)           7        4   ×0.50†         95.00             (-0.19)      4      ×0.50     †        77.70  (-0.51)      16      ×0.50     †      80.7   (-0.2)
+398          STR-Pruner                            7        4                       ×0.25         95.26    (+0.07)       4     ×0.60            78.38    (+0.17)       16    ×0.78             82.1   (+1.2)
+399                                                                   7        4    ×0.20          95.06    (-0.13)      4       ×0.55          78.29    (+0.08)       16       ×0.50           80.7   (-0.2)
+400
+401        Table   2.     Comparison   with   state-of-the-art   methods   on   static   and   neuromorphic   datasets.     The   values   in   parentheses
+402        denote  the  token  retention  ratio  (e.g.,  0.5  implies  retaining  50%  of  tokens).
+403
+404                         Method                                                  CIFAR10                                     CIFAR100                                      DVS128                                 CIFAR10-DVS                MembraneParam.  T             Acc.            Param.  T             Acc.            Param.   T            Acc.           Param.   T            Acc.Shortcut
+405
+406          Spikformer (Zhou et al.,       2023)              9.32          4           95.51              9.32          4           78.21              2.57         16           98.3              2.57         16           80.97
+             S-Transformer (Yao et al.,        2023)        10.28        4           95.60             10.28        4           78.40              2.57         16           99.3              2.57         16           80.03
+407          SWformer (Fang et al.,        2024)                7.51          4           96.10              7.51          4           79.30                  -               -                -                  2.05         16           83.93
+408          QKFormer (Zhou et al.,         2024)              6.74          4           96.18              6.74          4           81.15              1.50         16           98.6              1.50         16           84.07
+409          STAtten(Lee et al.,      2025)                            -             4           96.03                  -             4           80.20                  -               -                -                      -             16          83.90                    -
+410          Max-Former(Fang et al.,         2025)             6.57          4           97.04              6.60          4           82.65              1.45         16           98.6              1.45         16           84.23
+             STR-Pruner                                                      7.62          4      96.92(0.5)         7.65          4      82.15(0.5)         1.69         16      98.3(0.7)         1.69         16      83.1(0.7)3
+411
+412
+413        5.3.  Ablation  Study                                                                                  Table   3.     Ablation   study   on   the   intrinsic   effectiveness   of
+414                                                                                                               the  STR  module.   We  compare  the  backbone  model  (Max-
+415        Influence   of   Spatio-temporal   Token   Refiner.     To   ver-                                      Former)  with  and  without  the  STR  module  under  the  full-
+416        ify   that   the   performance   gains   stem   from   the   archi-                                    token  setting  (Token  Retention  =  100%).    The  results  in-
+           tectural   design   of   STR   rather   than   solely   from   the                                     dicate   that   STR   improves   representation   capability   even
+417        redundancy  reduction  via  pruning,  we  conduct  an  ab-                                             without  pruning.
+418        lation  study  by  integrating  the  STR  module  into  the
+419                                                                                                                    Model Variant                            STR Module       Pruning                     Accuracy (%)
+420        backbone without performing token removal (i.e., keep-                                                      Max-Former (Baseline)          7         7                   97.04                   82.65CIFAR-10           CIFAR-100
+421        ing  100%  of  tokens).    As  shown  in  Table                           3,  the  inclu-                   Max-Former + STR (Ours)      3         7            97.12      (+0.08)   82.82(+0.17)
+422        sion  of  STR  yields  a  consistent  accuracy  improvement
+423        compared  to  the  vanilla  baseline.   This  indicates  that
+424        STR   functions   as   an   effective   feature   enhancement                                          Spatial  Saliency  or  Spiking  Activation  Intensity  yields
+425        unit.      By   leveraging   the   Global   Squeezing   and   Fac-                                     suboptimal  accuracies  of  95.12%  and  95.06%,   respec-
+426        torized  Dual-Branch  mechanisms,  STR  captures  long-                                                tively,   indicating   that   neither   metric   alone   fully   cap-
+427        range temporal dependencies and recalibrates channel-                                                  tures   the   comprehensive   importance   of   tokens.     Fur-
+428        wise   saliency.       Consequently,    even   without   pruning,                                      thermore,   simply   summing   these   two   scores   without
+429        the   refined   features Xrefined   possess   a   higher   signal-                                     normalization  (Naive  Sum)  results  in  95.08%,   as  the
+430        to-noise   ratio   and   stronger   semantic   discriminability                                        scale  disparity  between  metrics  may  bias  the  selection.
+431        than  the  raw  spiking  features,  validating  the  intrinsic                                         In  contrast,  our  full  Dual-Criteria  Strategy,  which  em-
+432        effectiveness  of  our  spatio-temporal  modeling.                                                     ploys  normalization  to  balance  the  dynamic  range  of
+433        Influence  of  Dual-Criteria  Token  Scoring  Strategy.   To                                           activation and saliency before fusion, achieves the high-
+434        investigate    the    individual    contributions    of    the    pro-                                 est   accuracy   of   95.26%.     This   confirms   that   combin-
+435        posed  scoring  metrics  and  the  necessity  of  normaliza-                                           ing  temporal  activity  with  spatial  distinctiveness  via  a
+436        tion,  we  conduct  an  ablation  study  on  CIFAR-10  with                                            standardized  scale  provides  the  most  robust  criterion
+437        an   aggressive   token   retention   ratio   of   0.25   (Navg  =                                     for  identifying  informative  foreground  tokens.
+438        0.25).      As   summarized   in   Table                    4,   relying   solely   on                 Eﬀicacy  of  Gradient-Preserving  Identity  Strategy.     A
+439
+                                                                                                             8

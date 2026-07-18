@@ -1,0 +1,59 @@
+                                                                Title  Suppressed  Due  to  Excessive  Size
+
+495      Table   6.       Inference   eﬀiciency   comparison   on   CIFAR-10.                 Eshraghian,   J.   K.,   Ward,   M.,   Neftci,   E.   O.,   Wang,
+496      We  compare  the  proposed  STR-Pruner  (r≈ 0.25)  against                              X.,  Lenz,  G.,  Dwivedi,  G.,  Bennamoun,  M.,  Jeong,
+497      the  Spikformer  baseline  regarding  computational  cost  and                          D.  S.,  and  Lu,  W.  D.    Training  spiking  neural  net-
+         energy   consumption.      OPs   (Operations)   refer   to   the   to-
+498      tal  synaptic  operations  and  floating-point  operations.   En-                       works using lessons from deep learning.  Proceedings
+499      ergy   is   estimated   based   on   45nm   CMOS   technology   (4.6                    of  the  IEEE,  111(9):1016–1054,  2023.
+500      pJ/FLOP  and 0.9  pJ/SOP).
+501                                                                                           Fang,  Y.,  Wang,  Z.,  Zhang,  L.,  Cao,  J.,  Chen,  H.,  and
+502           Method                                    Keep Rate          Total OPs          Energy          Energy(r)                       (M)                  (mJ)            SavingXu,   R.    Spiking  wavelet  transformer.    In  European
+503           Spikformer (Baseline)         1.00                   496.16               0.633                 -conference  on  computer  vision,  pp.  19–37.  Springer,
+504           STR-Pruner (Ours)       0.25                   237.13               0.329            48.0%2024.
+505                                                                                           Fang,    Y.,    Zhou,    D.,    Wang,    Z.,    Ren,    H.,    Zeng,    Z.,
+506      from 0.633 mJ to 0.329 mJ, achieving an energy saving                                   Li,    L.,    shibo    zhou,    and    Xu,    R.        Spiking    neural
+507      of  48.0%.   These results demonstrate that STR-Pruner                                  networks  need  high-frequency  information.    In  The
+508      effectively  alleviates  the  heavy  computational  burden                              Thirty-ninth    Annual    Conference    on    Neural    Infor-
+509      of  Spiking  Transformers,  making  them  highly  suitable                              mation   Processing   Systems,    2025.       URL               https://
+510      for  low-power,  energy-constrained  edge  applications.                                openreview.net/forum?id=owNPAl7LNK.
+511
+512                                                                                           Han,   S.,   Mao,   H.,   and   Dally,   W.   J.     Deep   compres-
+513      6.  Conclusion                                                                          sion:   Compressing  deep  neural  networks  with  prun-
+514      In  this  work,  we  presented  STR-Pruner,  a  robust  and                             ing, trained quantization and huffman coding.  arXiv
+515      universal   token   pruning   framework   tailored   for   Spik-                        preprint  arXiv:1510.00149,  2015.
+516      ing   Transformers.     Addressing   the   fundamental   chal-
+517      lenges   of   raw   spike   instability   and   training   collapse                  Hinton,    G.,    Vinyals,    O.,    and    Dean,    J.        Distilling
+518      in  SNNs,  our  approach  introduces  a  novel  refine-then-                            the  knowledge  in  a  neural  network.    arXiv  preprint
+519      prune  paradigm.    By  integrating  the  Spatio-temporal                               arXiv:1503.02531,  2015.
+520      Token   Refiner   (STR),   we   effectively   denoise   stochas-
+521                                                                                           Hodgkin,  A.  L.  and  Huxley,  A.  F.   A  quantitative  de-
+522      tic   spiking   features   to   ensure   reliable   importance   es-                    scription of membrane current and its application to
+523      timation  via  a  dual-criteria  scoring  mechanism.    Fur-                            conduction  and  excitation  in  nerve.   The  Journal  of
+524      thermore,   the   proposed   Gradient-Preserving   Identity                             physiology,  117(4):500,  1952.
+525      strategy  resolves  the  gradient  vanishing  issue  inherent
+526      in  hard  pruning,   significantly  stabilizing  the  training                       Kang,  D.,  Lee,  Y.,  Lee,  E.-K.,  Kang,  B.,  Lee,  J.,  and
+527      dynamics.                                                                               Baek,  H.   At-snn:   Adaptive  tokens  for  vision  trans-
+528                                                                                              former   on   spiking   neural   network.     arXiv   preprint
+529      References                                                                              arXiv:2408.12293,  2024.
+530      Amir,  A.,  Taba,  B.,  Berg,  D.,  Melano,  T.,  McKinstry,                         Krizhevsky,   A.,   Hinton,   G.,   et  al.    Learning  multiple
+531         J.,  Di  Nolfo,  C.,  Nayak,  T.,  Andreopoulos,  A.,  Gar-                          layers  of  features  from  tiny  images.   2009.
+532         reau,   G.,   Mendoza,   M.,   et   al.     A   low   power,   fully
+533         event-based  gesture  recognition  system.  In  Proceed-                          Kugele,  A.,  Pfeil,  T.,  Pfeiffer,  M.,  and  Chicca,  E.   Ef-
+534         ings  of  the  IEEE  conference  on  computer  vision  and                           ficient   processing   of   spatio-temporal   data   streams
+535         pattern  recognition,  pp.  7243–7252,  2017.                                        with   spiking   neural   networks.      Frontiers   in   neuro-
+536                                                                                              science,  14:512192,  2020.
+537      Baltes,  M.,  Abuhajar,  N.,  Yue,  Y.,  Smith,  C.  D.,  and
+538         Liu,   J.     Joint   ann-snn   co-training   for   object   local-               Ledinauskas,   E.,   Ruseckas,   J.,   Juršėnas,   A.,   and  Bu-
+539         ization  and  image  segmentation.    In  ICASSP  2023-                              račas,   G.      Training   deep   spiking   neural   networks.
+540         2023   IEEE   International   Conference   on   Acoustics,                           arXiv  preprint  arXiv:2006.04436,  2020.
+541         Speech   and   Signal   Processing   (ICASSP),   pp.   1–5.                       Lee,  D.,  Li,  Y.,  Kim,  Y.,  Xiao,  S.,  and  Panda,  P.  Spik-
+542         IEEE,  2023.                                                                         ing  transformer  with  spatial-temporal  attention.   In
+543                                                                                              Proceedings   of   the   Computer   Vision   and   Pattern
+544      Davies,  M.,  Srinivasa,  N.,  Lin,  T.-H.,  Chinya,  G.,  Cao,                         Recognition  Conference,  pp.  13948–13958,  2025.
+545         Y.,  Choday,  S.  H.,  Dimou,  G.,  Joshi,  P.,  Imam,  N.,
+546         Jain,   S.,   et   al.     Loihi:     A   neuromorphic   manycore                 Li,   H.,   Liu,   H.,   Ji,   X.,   Li,   G.,   and   Shi,   L.     Cifar10-
+547         processor  with  on-chip  learning.    Ieee  Micro,  38(1):                          dvs:     an   event-stream   dataset   for   object   classifica-
+548         82–99,  2018.                                                                        tion.   Frontiers  in  neuroscience,  11:244131,  2017.
+549
+                                                                                         10

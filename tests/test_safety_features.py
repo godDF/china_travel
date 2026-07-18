@@ -5,7 +5,13 @@ from pathlib import Path
 
 from backend.rag import chunk_markdown, parse_markdown
 from backend.reviews import ReviewConflict, ReviewStore
-from backend.safety import classify_intent, precheck_attack, sensitive_reasons, update_traveler_groups
+from backend.safety import (
+    GuardrailClassificationError,
+    classify_intent,
+    precheck_attack,
+    sensitive_reasons,
+    update_traveler_groups,
+)
 
 
 class FakeLlm:
@@ -14,6 +20,12 @@ class FakeLlm:
 
     def __call__(self, *args, **kwargs):
         return self.response
+
+
+class FailedLlm(FakeLlm):
+    def __init__(self, error):
+        super().__init__('{\"error\":\"request failed\"}')
+        self.last_error = error
 
 
 class SafetyTests(unittest.TestCase):
@@ -38,6 +50,24 @@ class SafetyTests(unittest.TestCase):
     def test_mixed_request_is_not_silently_routed(self):
         decision = classify_intent("帮我规划北京三日游，顺便说说儿童票怎么买", FakeLlm("{}"))
         self.assertTrue(decision.mixed_request)
+
+    def test_invalid_intent_has_browser_safe_reason(self):
+        llm = FakeLlm('{"intent":"unknown","rag_category":null}')
+        with self.assertRaises(GuardrailClassificationError) as caught:
+            classify_intent("帮我看看北京", llm)
+        self.assertEqual(caught.exception.code, "invalid_intent")
+        self.assertIn("四种类型", caught.exception.public_reason)
+
+    def test_invalid_json_has_browser_safe_reason(self):
+        with self.assertRaises(GuardrailClassificationError) as caught:
+            classify_intent("帮我看看北京", FakeLlm("not-json"))
+        self.assertEqual(caught.exception.code, "invalid_json")
+
+    def test_timeout_is_classified_without_exposing_exception(self):
+        with self.assertRaises(GuardrailClassificationError) as caught:
+            classify_intent("帮我看看北京", FailedLlm(TimeoutError("secret detail")))
+        self.assertEqual(caught.exception.code, "llm_timeout")
+        self.assertNotIn("secret detail", caught.exception.public_reason)
 
 
 class RagDocumentTests(unittest.TestCase):

@@ -1,0 +1,59 @@
+                                                              Title  Suppressed  Due  to  Excessive  Size
+
+275      tic  information  and  lack  a  standardized,  consistent  cri-                  where   Norm(·)   denotes   the   normalization   operation
+276      terion   for   importance   ranking.     For   instance,   relying               within   the   current   batch.      Based   on S(i),   we   gener-
+277      solely  on  firing  rates  is  often  insuﬀicient  due  to  poten-               ate  a  binary  mask  to  retain  the  top-k  tokens  with  the
+278      tial   background   noise   inherent   in   SNNs,   while   SSA-                 highest   scores,   ensuring   that   both   highly   active   and
+279      based  ranking  can  be  misled  by  background  similarity.                     spatially  salient  features  are  preserved  for  subsequent
+280      To  overcome  these  inconsistencies  and  accurately  iden-                     layers.
+281      tify   informative   tokens,   we   propose   a   Dual-Criteria
+282      Scoring  Mechanism.     Unlike  previous  approaches,   we                       4.3.  Gradient-Preserving  Identity  Strategy
+283      leverage  the  refined  featuresXguide =X+Xrefined  to                           To   reconcile   the   conflict   between   inference   eﬀiciency
+284      evaluate   token   importance   from   two   complementary                       and   training   stability   in   deep   Spiking   Transformers,
+285      perspectives:   activation  intensity  and  spatial  saliency.                   we    propose    the    Gradient-Preserving    Identity    (GPI)
+286      LetXguide ∈RT×N×C  denote  the  guided  feature  map,                            strategy.      As   illustrated   in   Figure      2,   unlike   conven-
+287      where N   is  the  number  of  tokens.    The  score  for  the                   tional  hard  pruning  approaches  that  permanently  dis-
+288      i-th  token  is  computed  as  follows:                                          card  unselected  tokens—thereby  creating  information
+289      Spiking   Activation   Intensity.       In   spike-based   vision                dead   zones—our   method   establishes   a   dual-pathway
+290      tasks,  the  magnitude  of  activation  directly  correlates                     mechanism within each block.  The computationally in-
+291      with   information   density.     We   first   measure   the   tem-              tensive Spiking Self-Attention (SSA) and MLP compo-
+292      poral   richness   of   each   token   by   calculating   its   mean             nents  are  exclusively  applied  to  the  identified  informa-
+293      absolute  activation  across  time  steps T   and  channels                      tive   foreground   tokens,   significantly   reducing   energy
+294      C.    This  metric  captures  the  dynamic  activity  of  the                    consumption and synaptic operations.   Meanwhile,  the
+295      token:                                                                           redundant  background  tokens  physically  bypass  these
+296                                          TX   CX  X(t,i,c).                         (15)high-complexity  modules  but  retain  their  feature  val-
+297                      S(i)act =     1T ·C              guide                           ues   via   a   direct   identity   connection.      This   design   is
+298                                         t=1  c=1                                      critical   for   training   dynamics:      it   ensures   that   dur-
+299      Tokens   with   higher Sact   represent   regions   with   high                  ing  the  backward  pass,  error  gradients  for  suppressed
+300      firing  rates,  which  typically  correspond  to  the  primary                   background   regions   can   propagate   losslessly   through
+301      visual  stimuli.                                                                 the   identity   path   to   earlier   layers.      By   maintaining
+302      Spatial  Saliency  Deviation.   To  distinguish  foreground                      a   continuous   information   flow   across   the   entire   net-
+303      objects from potentially active but uninformative back-                          work  depth,  GPI  effectively  resolves  the  gradient  van-
+304      grounds  (e.g.,  textured  surfaces),  we  introduce  a  spa-                    ishing and training collapse issues often encountered in
+305      tial  saliency  metric.   This  metric  measures  the  distinc-                  deep  SNN  pruning,  while  maximizing  sparse  inference
+306      tiveness   of   a   token   relative   to   the   global   visual   con-         speed.The  complete  training  pipeline  of  the  proposed
+307      text.   We first compute the spatial mean feature vector                         Spikformer   with   STR   and   the   token   pruning   mecha-
+308      µ∈RT×1×C   at  each  time  step:                                                 nism  is  summarized  in  Algorithm             1.
+309
+310                                             NX
+311                            µ(t,c) =  1N         X(t,j,c)guide.                                    (16)5.  Experiments
+312                                            j=1                                        5.1.  Setups
+313      The saliency score is then defined as the mean absolute
+314      deviation  of  the  token  from  this  global  prototype:                        Models    and    datasets.         We    evaluate    our    proposed
+315                                                                                       method—the  STR-based  Dual-Criteria  Token  Scoring
+316                                     TX   CXX(t,i,c)                                Strategy—using  two  distinct  Spiking  Transformer  ar-
+317                 S(i)sal =     1T ·C             guide −µ(t,c).            (17)     chitectures:   Spikformer  (Zhou  et  al.,            2023)  and  Max-
+318                                   t=1   c=1                                           Former   (Fang   et   al.,     2025).      For   both   baselines,   we
+319      A  higher Ssal  indicates  that  the  token  significantly  de-                  adopt   backbone   configurations   identical   to   those   de-
+320      viates from the average background representation, im-                           scribed  in  their  respective  original  papers  to  ensure  a
+321      plying  high  uniqueness  and  semantic  importance.                             fair comparison.   We conduct  extensive experiments to
+322                                                                                       demonstrate the superior performance of our approach
+323      Score  Fusion  and  Token  Selection.   Since  the  two  met-                    in   terms   of   accuracy,   training   cost,   and   inference   ef-
+324      rics  may  have  different  scales,  we  apply  Min-Max  nor-                    ficiency   across   multiple   benchmarks.      These   include
+325      malization to map them into the range [0,1].   The final                         static    datasets,    namely    CIFAR-10/100    (Krizhevsky
+326      importance  scoreS(i)  is  the  summation  of  the  normal-                      et  al., 2009),  as  well  as  neuromorphic  datasets,  specifi-
+327      ized  terms:                                                                     cally CIFAR10-DVS (Li et al.,              2017) and DVS128 Ges-
+328                    S(i) = Norm(S(i)                                                   ture  (Amir  et  al.,     2017).
+329                                         act)+ Norm(S(i)sal),                    (18)
+
+                                                                                      6

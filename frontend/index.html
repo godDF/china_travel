@@ -103,6 +103,105 @@
         .message.assistant.rejected { background: #ffebee; border: 1px solid #ef9a9a; color: #b71c1c; max-width: 95%; }
         .message-sources { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,.1); font-size: 12px; }
         .message-sources a { color: #5b21b6; display: block; margin-top: 4px; }
+        .message-sources span { display: block; margin-top: 4px; }
+        .rag-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 12px;
+            white-space: normal;
+        }
+        .rag-metric-card {
+            min-width: 0;
+            padding: 10px;
+            border: 1px solid #e6ddbd;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, .72);
+        }
+        .rag-metric-label { color: #7c6f4b; font-size: 11px; }
+        .rag-metric-value {
+            margin-top: 3px;
+            color: #332d1f;
+            font-size: 17px;
+            line-height: 1.3;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+        .rag-metric-hint { margin-top: 3px; color: #8a8065; font-size: 10px; line-height: 1.4; }
+        .rag-progress-panel {
+            align-self: flex-start;
+            width: 95%;
+            padding: 14px;
+            border: 1px solid #c4b5fd;
+            border-radius: 12px;
+            background: #faf8ff;
+            animation: fadeIn .3s ease;
+        }
+        .rag-progress-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6d28d9;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .rag-progress-track {
+            height: 5px;
+            margin: 10px 0 12px;
+            border-radius: 999px;
+            background: #ede9fe;
+            overflow: hidden;
+        }
+        .rag-progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width .25s ease;
+        }
+        .rag-timeline { display: flex; flex-direction: column; gap: 9px; }
+        .rag-trace-event {
+            display: grid;
+            grid-template-columns: 24px minmax(0, 1fr) auto;
+            column-gap: 8px;
+            padding: 9px 10px;
+            border: 1px solid #e9e5f7;
+            border-radius: 9px;
+            background: #fff;
+        }
+        .rag-trace-event.running { border-color: #a5b4fc; background: #f5f7ff; }
+        .rag-trace-event.failed { border-color: #fecaca; background: #fff7f7; }
+        .rag-trace-icon { color: #16a34a; font-weight: 800; text-align: center; }
+        .rag-trace-event.running .rag-trace-icon { color: #6366f1; }
+        .rag-trace-event.failed .rag-trace-icon { color: #dc2626; }
+        .rag-trace-title { color: #312e81; font-size: 12px; font-weight: 700; }
+        .rag-trace-kind {
+            display: inline-block;
+            margin-right: 6px;
+            padding: 1px 5px;
+            border-radius: 5px;
+            background: #ede9fe;
+            color: #6d28d9;
+            font-size: 9px;
+        }
+        .rag-trace-lines { margin-top: 4px; color: #5f5b70; font-size: 11px; line-height: 1.55; }
+        .rag-trace-lines div + div { margin-top: 2px; }
+        .rag-trace-latency { color: #8b8798; font-size: 10px; white-space: nowrap; }
+        .rag-trace-details {
+            margin-top: 12px;
+            border: 1px solid #ddd6fe;
+            border-radius: 9px;
+            background: rgba(255,255,255,.65);
+            white-space: normal;
+        }
+        .rag-trace-details summary {
+            padding: 9px 10px;
+            color: #6d28d9;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .rag-trace-details .rag-timeline { padding: 0 9px 9px; }
         .quick-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .quick-actions button { border: 0; border-radius: 16px; padding: 7px 12px; cursor: pointer; background: #667eea; color: #fff; }
         #admin-link { float: right; color: white; font-size: 12px; text-decoration: none; opacity: .9; }
@@ -339,6 +438,8 @@
         /* Responsive */
         @media (max-width: 500px) {
             .message { max-width: 90%; font-size: 13px; }
+            .rag-metrics { grid-template-columns: 1fr; }
+            .rag-progress-panel { width: 100%; }
             #header { font-size: 16px; padding: 10px 14px; }
             #send-btn, #new-chat-btn { padding: 8px 12px; font-size: 12px; }
         }
@@ -357,20 +458,23 @@
 
 我可以为你提供：
   - 旅行方案：规划景点、酒店、餐饮和城际交通，支持“最便宜方案”和“预算内尽量接近预算”的正常方案。
-  - RAG 规则查询：查询儿童票、老人票、学生票、航班安全须知、高铁安全须知和景点注意事项，并展示知识来源。
+  - Agentic RAG 规则查询：查询儿童票、老人票、学生票、航班安全须知、高铁安全须知和景点注意事项；复杂问题会自动拆分，经过证据评估、必要时二次检索和回答校验后再返回，并展示知识来源。
   - 安全与人工审核：拦截提示词攻击和越狱请求；包含儿童、未成年人或老人的敏感旅行方案须经人工审核后发布。
   - 业务相关性保护：仅回答旅行规划和上述旅行规则问题，其他无关内容会被拒绝。
 
 支持的旅游城市：
   北京 · 上海 · 南京 · 苏州 · 杭州 · 深圳 · 成都 · 武汉 · 广州 · 重庆
 
-请告诉我你的旅行需求，比如：
-「我想去北京玩3天，预算20000元，从深圳出发，喜欢历史文化景点」
+你可以这样提问：
+  - 旅行规划：「我想去北京玩3天，预算20000元，从深圳出发，喜欢历史文化景点」
+  - 复杂规则查询：「大一新生还没有学生证，第一次坐高铁能否购买学生票？需要什么证明、如何核验、优惠区间怎么填写、每学年可以买几次？」
+
+对于复杂规则问题，系统会展示问题拆分、向量检索、证据评估、查询改写、二次检索和回答校验过程；知识库证据不足时不会编造答案。
         </div>
     </div>
     <div id="input-area">
         <button id="new-chat-btn" onclick="newChat()">新对话</button>
-        <input id="message-input" type="text" placeholder="输入你的旅行需求..." onkeydown="if(event.key==='Enter')sendMessage()">
+        <input id="message-input" type="text" placeholder="输入旅行需求或旅行规则问题..." onkeydown="if(event.key==='Enter')sendMessage()">
         <button id="send-btn" onclick="sendMessage()">发送</button>
     </div>
 </div>
@@ -384,6 +488,11 @@ let seenSteps = new Set();
 let progressPanelEl = null;
 let renderedPlanCount = 0;
 let lastReviewStatus = null;
+let ragPollTimer = null;
+let ragProgressPanelEl = null;
+let activeRagJobId = null;
+let ragPollBusy = false;
+let ragPollFailures = 0;
 
 // ===== API Helpers =====
 async function api(path, method = 'GET', body = null) {
@@ -414,6 +523,7 @@ async function init() {
 // ===== New Chat =====
 async function newChat() {
     stopPolling();
+    stopRagPolling();
     isGenerating = false;
     seenSteps = new Set();
     renderedPlanCount = 0;
@@ -422,6 +532,7 @@ async function newChat() {
     document.getElementById('message-input').disabled = false;
     document.getElementById('messages').innerHTML = '';
     removeProgressPanel();
+    removeRagProgressPanel();
     try {
         const resp = await api('/api/sessions/new', 'POST');
         sessionId = resp.session_id;
@@ -463,11 +574,15 @@ async function sendMessage() {
             addQuickActions([
                 ['确认并开始规划', '确认并开始规划'],
             ]);
+        } else if (resp.type === 'rag_status') {
+            beginRagPolling(resp);
         } else if (resp.type === 'rag') {
-            addRagMessage(resp.message, resp.sources || []);
+            addRagMessage(resp.message, resp.sources || [], resp.rag_meta || null, resp.trace || []);
         } else if (resp.type === 'intent_choice') {
             addMessage('assistant', resp.message, 'confirmation');
             addQuickActions([['规则查询', '规则查询'], ['旅行方案制定', '旅行方案制定']]);
+        } else if (resp.type === 'error') {
+            addMessage('assistant', resp.message, 'error');
         } else {
             addMessage('assistant', resp.message);
         }
@@ -579,6 +694,238 @@ function removeProgressPanel() {
         progressPanelEl.remove();
         progressPanelEl = null;
     }
+}
+
+function removeRagProgressPanel() {
+    if (ragProgressPanelEl) {
+        ragProgressPanelEl.remove();
+        ragProgressPanelEl = null;
+    }
+}
+
+function ragShouldStickToBottom() {
+    const messages = document.getElementById('messages');
+    return messages.scrollHeight - messages.scrollTop - messages.clientHeight < 140;
+}
+
+function ragEventKindLabel(eventType) {
+    return { agent: 'AG', tool: 'TL', llm: 'LLM', system: 'SYS' }[eventType] || 'SYS';
+}
+
+function ragEventLines(event) {
+    const details = event.details || {};
+    const lines = [];
+    if (event.status === 'running') {
+        lines.push('正在执行...');
+        return lines;
+    }
+
+    if (event.stage === 'query_planning') {
+        const count = Number(details.subquery_count || 0);
+        if (count > 1) lines.push(`将复杂问题拆分为 ${count} 个检索问题`);
+        else if (count === 1) lines.push('生成 1 个检索问题');
+        const subqueries = Array.isArray(details.subqueries)
+            ? details.subqueries.map((item) => String(item || '').trim()).filter(Boolean)
+            : [];
+        subqueries.forEach((query, index) => {
+            lines.push(`子问题 ${index + 1}：${query}`);
+        });
+    } else if (event.stage === 'retrieval') {
+        const chunks = Number(details.retrieved_chunks || 0);
+        const score = Number(details.top_score || 0);
+        lines.push(`召回 ${chunks} 个片段，最高相似度 ${score.toFixed(4)}`);
+    } else if (event.stage === 'evidence_grading') {
+        const accepted = Number(details.accepted_chunks || 0);
+        const missing = Array.isArray(details.missing_aspects) ? details.missing_aspects.filter(Boolean) : [];
+        lines.push(`接受 ${accepted} 个片段`);
+        if (details.sufficient === true) {
+            lines.push('判断：证据充分，可以进入回答生成');
+        } else if (missing.length > 0) {
+            lines.push(`判断：证据不足，缺少“${missing.join('、')}”`);
+        } else {
+            lines.push('判断：当前证据不足');
+        }
+    } else if (event.stage === 'query_rewrite') {
+        const count = Number(details.subquery_count || 0);
+        lines.push(`生成 ${count || 1} 个更具体的检索问题`);
+        const rewrittenQueries = Array.isArray(details.rewritten_queries)
+            ? details.rewritten_queries.map((item) => String(item || '').trim()).filter(Boolean)
+            : [];
+        rewrittenQueries.forEach((query, index) => {
+            lines.push(`改写问题 ${index + 1}：${query}`);
+        });
+    } else if (event.stage === 'answer_generation') {
+        lines.push(details.decision_summary || '仅使用通过评估的证据生成回答');
+    } else if (event.stage === 'answer_verification' || event.stage === 'answer_reverification') {
+        const verdict = details.verdict;
+        if (verdict === 'pass') lines.push('校验结果：通过，可以发布');
+        else if (verdict === 'revise') lines.push('校验结果：需要修正后再次复核');
+        else lines.push('校验结果：证据不足，停止发布');
+    } else if (event.stage === 'answer_revision') {
+        lines.push('根据校验意见对回答进行一次受限修正');
+    }
+
+    if (details.decision_summary && !lines.includes(details.decision_summary)) {
+        lines.push(`决策摘要：${details.decision_summary}`);
+    }
+    if (details.selected_tool) lines.push(`调用工具：${details.selected_tool}`);
+    if (details.next_action) lines.push(`下一步：${details.next_action}`);
+    return lines;
+}
+
+function renderRagTraceEvents(container, events) {
+    container.innerHTML = '';
+    (events || []).forEach((event) => {
+        const row = document.createElement('div');
+        row.className = `rag-trace-event ${event.status || ''}`;
+
+        const icon = document.createElement('div');
+        icon.className = 'rag-trace-icon';
+        if (event.status === 'running') {
+            const spinner = document.createElement('span');
+            spinner.className = 'spinner';
+            icon.appendChild(spinner);
+        } else {
+            icon.textContent = event.status === 'failed' ? '×' : '✓';
+        }
+
+        const body = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'rag-trace-title';
+        const kind = document.createElement('span');
+        kind.className = 'rag-trace-kind';
+        kind.textContent = ragEventKindLabel(event.event_type);
+        title.appendChild(kind);
+        title.appendChild(document.createTextNode(event.label || event.stage || '执行阶段'));
+        body.appendChild(title);
+
+        const lineBox = document.createElement('div');
+        lineBox.className = 'rag-trace-lines';
+        ragEventLines(event).forEach((line) => {
+            const lineEl = document.createElement('div');
+            lineEl.textContent = line;
+            lineBox.appendChild(lineEl);
+        });
+        body.appendChild(lineBox);
+
+        const latency = document.createElement('div');
+        latency.className = 'rag-trace-latency';
+        latency.textContent = event.status === 'running'
+            ? '进行中'
+            : `${Number(event.latency_ms || 0).toLocaleString('zh-CN')} ms`;
+
+        row.appendChild(icon);
+        row.appendChild(body);
+        row.appendChild(latency);
+        container.appendChild(row);
+    });
+}
+
+function createRagProgressPanel() {
+    removeRagProgressPanel();
+    const panel = document.createElement('div');
+    panel.className = 'rag-progress-panel';
+    panel.innerHTML = `
+        <div class="rag-progress-header"><span class="spinner"></span><span>Agentic RAG 正在查询知识库</span></div>
+        <div class="rag-progress-track"><div class="rag-progress-fill"></div></div>
+        <div class="rag-timeline"></div>
+    `;
+    document.getElementById('messages').appendChild(panel);
+    ragProgressPanelEl = panel;
+    scrollMessagesToBottom();
+}
+
+function updateRagProgressPanel(payload) {
+    if (!ragProgressPanelEl) return;
+    const stickToBottom = ragShouldStickToBottom();
+    const progress = Math.max(0, Math.min(100, Number(payload.progress || 0)));
+    ragProgressPanelEl.querySelector('.rag-progress-fill').style.width = `${progress}%`;
+    const headerText = ragProgressPanelEl.querySelector('.rag-progress-header span:last-child');
+    headerText.textContent = payload.current_stage
+        ? `Agentic RAG：${payload.current_stage}`
+        : 'Agentic RAG 正在查询知识库';
+    renderRagTraceEvents(ragProgressPanelEl.querySelector('.rag-timeline'), payload.events || []);
+    if (stickToBottom) scrollMessagesToBottom();
+}
+
+function finalizeRagProgressPanel(status, events = []) {
+    if (!ragProgressPanelEl) return;
+    if (events.length > 0) {
+        renderRagTraceEvents(ragProgressPanelEl.querySelector('.rag-timeline'), events);
+    }
+    const header = ragProgressPanelEl.querySelector('.rag-progress-header');
+    header.innerHTML = status === 'failed'
+        ? '<span style="color:#dc2626;font-weight:800">×</span><span>Agentic RAG 查询失败</span>'
+        : '<span class="spinner-done"></span><span>Agentic RAG 查询完成</span>';
+    ragProgressPanelEl.querySelector('.rag-progress-fill').style.width = '100%';
+}
+
+function beginRagPolling(payload) {
+    isGenerating = true;
+    document.getElementById('send-btn').disabled = true;
+    document.getElementById('message-input').disabled = true;
+    activeRagJobId = payload.job_id;
+    ragPollFailures = 0;
+    createRagProgressPanel();
+    updateRagProgressPanel(payload);
+    scheduleRagPoll(150);
+}
+
+function scheduleRagPoll(delay = 700) {
+    if (!activeRagJobId) return;
+    if (ragPollTimer) clearTimeout(ragPollTimer);
+    ragPollTimer = setTimeout(pollRagJob, delay);
+}
+
+async function pollRagJob() {
+    if (!activeRagJobId || ragPollBusy) return;
+    ragPollBusy = true;
+    const jobId = activeRagJobId;
+    try {
+        const resp = await api(`/api/rag-jobs/${encodeURIComponent(jobId)}?session_id=${encodeURIComponent(sessionId)}`);
+        ragPollFailures = 0;
+        if (resp.type === 'rag_status') {
+            updateRagProgressPanel(resp);
+            ragPollBusy = false;
+            scheduleRagPoll();
+            return;
+        }
+
+        stopRagPolling();
+        if (resp.type === 'rag') {
+            removeRagProgressPanel();
+            addRagMessage(
+                resp.message,
+                resp.sources || [],
+                resp.rag_meta || null,
+                resp.trace || [],
+            );
+        } else {
+            finalizeRagProgressPanel('failed', resp.trace || []);
+            ragProgressPanelEl = null;
+            addMessage('assistant', resp.message || 'Agentic RAG 查询失败', 'error');
+        }
+        resetClientRequestState();
+    } catch (error) {
+        ragPollBusy = false;
+        ragPollFailures += 1;
+        if (ragPollFailures < 3) {
+            scheduleRagPoll(1000);
+            return;
+        }
+        stopRagPolling();
+        finalizeRagProgressPanel('failed');
+        ragProgressPanelEl = null;
+        addMessage('assistant', `Agentic RAG 进度查询失败：${error.message}`, 'error');
+        await resetAfterTerminalResponse();
+    }
+}
+
+function stopRagPolling() {
+    if (ragPollTimer) clearTimeout(ragPollTimer);
+    ragPollTimer = null;
+    activeRagJobId = null;
+    ragPollBusy = false;
 }
 
 function resetClientRequestState() {
@@ -723,21 +1070,119 @@ function addMessage(role, content, cls = '', thoughts = []) {
     scrollMessagesToBottom();
 }
 
-function addRagMessage(content, sources) {
+function addRagMetricCard(container, label, value, hint) {
+    const card = document.createElement('div');
+    card.className = 'rag-metric-card';
+
+    const labelEl = document.createElement('div');
+    labelEl.className = 'rag-metric-label';
+    labelEl.textContent = label;
+    card.appendChild(labelEl);
+
+    const valueEl = document.createElement('div');
+    valueEl.className = 'rag-metric-value';
+    valueEl.textContent = value;
+    card.appendChild(valueEl);
+
+    const hintEl = document.createElement('div');
+    hintEl.className = 'rag-metric-hint';
+    hintEl.textContent = hint;
+    card.appendChild(hintEl);
+    container.appendChild(card);
+}
+
+function addRagTraceDetails(container, trace) {
+    const completedTrace = (trace || []).filter(event => event.status !== 'running');
+    if (completedTrace.length === 0) return;
+    const details = document.createElement('details');
+    details.className = 'rag-trace-details';
+    const summary = document.createElement('summary');
+    summary.textContent = `Agentic RAG 执行过程（${completedTrace.length} 个阶段）`;
+    const timeline = document.createElement('div');
+    timeline.className = 'rag-timeline';
+    renderRagTraceEvents(timeline, completedTrace);
+    details.appendChild(summary);
+    details.appendChild(timeline);
+    container.appendChild(details);
+}
+
+function addRagMessage(content, sources, meta, trace = []) {
     addMessage('assistant', content, 'rag');
     const messages = document.getElementById('messages');
     const div = messages.lastElementChild;
-    if (!div || !sources.length) return;
+    if (!div) return;
+
+    addRagTraceDetails(div, trace);
+
+    if (meta && typeof meta === 'object') {
+        const toInteger = (value) => {
+            const number = Number(value);
+            return Number.isFinite(number) && number >= 0 ? Math.trunc(number) : 0;
+        };
+        const formatInteger = (value) => new Intl.NumberFormat('zh-CN').format(toInteger(value));
+        const inputTokens = toInteger(meta.input_tokens);
+        const outputTokens = toInteger(meta.output_tokens);
+        const cacheHitTokens = toInteger(meta.cache_hit_input_tokens);
+        const cacheMissTokens = toInteger(meta.cache_miss_input_tokens);
+        const retrievalRounds = toInteger(meta.retrieval_rounds);
+        const maxRetrievalRounds = toInteger(meta.max_retrieval_rounds);
+        const latencyMs = toInteger(meta.latency_ms);
+        const cost = Number(meta.estimated_cost_cny);
+        const pricingModel = String(meta.pricing_model || 'DeepSeek');
+        const cacheEstimateHint = meta.cache_usage_reported === true
+            ? ''
+            : '（按缓存未命中保守估算）';
+
+        const metrics = document.createElement('div');
+        metrics.className = 'rag-metrics';
+        addRagMetricCard(
+            metrics,
+            '输入 / 输出 Token',
+            `${formatInteger(inputTokens)} / ${formatInteger(outputTokens)}`,
+            `缓存命中 ${formatInteger(cacheHitTokens)} · 未命中 ${formatInteger(cacheMissTokens)}${cacheEstimateHint}`,
+        );
+        addRagMetricCard(
+            metrics,
+            '检索轮次',
+            formatInteger(retrievalRounds),
+            `硬上限 ${formatInteger(maxRetrievalRounds)}`,
+        );
+        addRagMetricCard(
+            metrics,
+            '总耗时',
+            `${(latencyMs / 1000).toFixed(2)} s`,
+            '端到端查询',
+        );
+        addRagMetricCard(
+            metrics,
+            'DeepSeek 估算成本',
+            `¥${Number.isFinite(cost) && cost >= 0 ? cost.toFixed(6) : '0.000000'}`,
+            `${pricingModel} · 官方人民币单价`,
+        );
+        div.appendChild(metrics);
+    }
+
+    if (!sources.length) {
+        scrollMessagesToBottom();
+        return;
+    }
     const sourceBox = document.createElement('div');
     sourceBox.className = 'message-sources';
     sourceBox.textContent = '参考来源：';
     sources.forEach((source) => {
-        const link = document.createElement('a');
-        link.href = source.source_url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.textContent = `${source.title || source.source_name}（更新：${source.updated_at || '未知'}）`;
-        sourceBox.appendChild(link);
+        const sourceLabel = `${source.title || source.source_name || '未命名来源'}（更新：${source.updated_at || '未知'}）`;
+        if (source.source_url) {
+            const link = document.createElement('a');
+            link.href = source.source_url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = sourceLabel;
+            sourceBox.appendChild(link);
+        } else {
+            const text = document.createElement('span');
+            text.textContent = sourceLabel;
+            sourceBox.appendChild(text);
+        }
     });
     div.appendChild(sourceBox);
     scrollMessagesToBottom();

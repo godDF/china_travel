@@ -1,0 +1,63 @@
+                                                                Title  Suppressed  Due  to  Excessive  Size
+
+440      Table  4.    Ablation  study  of  different  scoring  strategies  on
+441      CIFAR-10  with  a  token  retention  ratio  of  0.25.    Norm  de-
+442      notes  the  Min-Max  normalization.    The  full  Dual-Criteria
+         strategy  yields  the  best  performance.
+443
+444           Scoring Method                           Activity       Saliency       Norm       Acc.  (%)
+445           Spatial Saliency Only         7         3                   -                95.12
+446           Activation Intensity Only      3         7                    -                95.06
+              Naive Sum                  3        3        7                95.08
+447           Dual-Criteria (Ours)          3        3       3               95.26
+448
+449
+450      core   innovation   of   our   STR-Pruner   is   the   Gradient-
+451      Preserving   Identity   strategy,    which   maintains   infor-
+452      mation   flow   for   pruned   background   tokens   via   iden-
+453      tity  connections  rather  than  discarding  them  entirely.
+454      To   validate   the   critical   role   of   this   design,    we   per-             Figure     4.           Training     eﬀiciency     analysis     on     CIFAR-10.
+455      formed an ablation study on CIFAR-10 comparing our                                   The   gray   dashed   line   represents   the   baseline   Spikformer
+456      approach   against   a   conventional   Hard   Pruning   base-                       throughput   (847   img/s).      While   the   STR   module   intro-
+                                                                                              duces  a  minor  overhead  at  high  retention  ratios  (r = 0.8),
+457      line   where   unselected   tokens   are   completely   zeroed                       the eﬀiciency gains from sparse computation dominate as r
+458      out.      As   shown   in   Table       5,   the   Hard   Pruning   vari-            decreases,  achieving  a  peak  speedup  of  1.44×  at r = 0.25.
+459      ant   suffers   a   significant   performance   drop,   achieving
+460      only  95.19%  accuracy.    This  degradation  likely  stems                          figure,  at  a  high  retention  ratio  (r = 0.8),  the  through-
+461      from   the   interruption   of   gradient   flow   during   train-                   put curve dips slightly below the baseline to 777 img/s.
+462      ing  and  the  permanent  loss  of  contextual  background                           This   initial   drop   is   expected,    as   the   computational
+463      information   needed   for   later   layers.     Conversely,   our                   overhead   introduced   by   the   STR   module   outweighs
+464      Gradient-Preserving   Identity   strategy   effectively   mit-                       the  limited  savings  from  pruning  only  20%  of  the  to-
+465      igates  these  issues  by  allowing  background  tokens  to                          kens.   However,  as  the  retention  ratio  continues  to  de-
+466      bypass  the  heavy  computation  blocks  while  retaining                            crease,   the   eﬀiciency   gains   from   sparse   computation
+467      their  information,  restoring  accuracy  to  95.26%.   This                         significantly  surpass  the  architectural  overhead.    The
+468      demonstrates  that  preserving  background  values  via  a                           throughput curve crosses above the baseline atr = 0.6
+469      residual-like   path   is   essential   for   maintaining   robust                   (922  img/s).   Notably,  at  the  aggressive  retention  ratio
+470      feature   propagation   and   model   trainability   in   deep                       ofr = 0.25, STR-Pruner achieves a peak throughput of
+471      Spiking  Transformers.                                                               1216  img/s,  representing  a  substantial  1.44×  speedup
+472                                                                                           compared   to   the   standard   Spikformer.       This   trend
+473      Table  5.   Ablation  study  on  the  Gradient-Preserving  Iden-                     demonstrates  that  our  method  is  particularly  effective
+474      tity   strategy.     We   compare   our   proposed   identity   connec-              for high-eﬀiciency training scenarios where meaningful
+475      tion  strategy  against  a  Hard  Pruning  baseline  on  CIFAR-                      token  sparsification  is  desired.
+476      10.   The  Hard  Pruning  method  zeros  out  unselected  tokens,
+         which   interrupts   gradient   propagation,   whereas   our   iden-                 Inference   eﬀiciency   on   energy.       To   comprehensively
+477      tity  strategy  preserves  them  to  maintain  information  flow.                    evaluate    the    low-power    advantage    of    our    proposed
+478                                                                                           method,   we   further   compare   the   computational   cost
+479               Background Token Strategy         Gradient Flow         Acc.  (%)
+                  Hard Pruning (Zero-out)                   Interrupted                 95.19 (OPs)   and   theoretical   energy   consumption   of   STR-
+480               Identity Connection (Ours)                Preserved                   95.26 Pruner  against  the  Spikformer  baseline  on  the  CIFAR-
+481                                                                                           10  dataset.   The  results  are  reported  in  Table               6.
+482
+483      5.4.  Training  Eﬀiciency  Analysis                                                  By     dynamically     pruning     redundant     tokens,      STR-
+484                                                                                           Pruner  significantly  reduces  the  computational  redun-
+485      We  further  evaluate  the  training  eﬀiciency  of  our  pro-                       dancy  in  the  Transformer  encoder.    Specifically,   at  a
+486      posed  method  by  measuring  the  training  throughput                              retention   ratio   of r = 0.25,   our   method   reduces   the
+487      (images/second)   on   the   CIFAR-10   dataset   using   an                         total   Operations   (OPs)   from   496.16   M   to   237.13   M,
+488      RTX-3090  GPU.  We  compare  the  original  Spikformer                               representing  a  substantial  52.20%  reduction  in  compu-
+489      baseline against our STR-Pruner under different token                                tational  complexity.
+490      retention  ratios  (r).                                                              This  dramatic  reduction  in  OPs  directly  translates  to
+491      The   quantitative   results   are   visualized   in   Figure                4,      superior  energy  eﬀiciency.    Using  standard  neuromor-
+492      where the gray dashed line represents the baseline Spik-                             phic  hardware  energy  models  (45nm  CMOS  process),
+493      former  throughput  (847  img/s).   As  illustrated  in  the                         STR-Pruner  lowers  the  single-image  inference  energy
+494
+                                                                                          9
