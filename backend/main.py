@@ -248,7 +248,10 @@ async def create_session() -> dict:
         sessions[sid] = {
             "session_id": sid,
             "created_at": datetime.now().isoformat(),
+            # 存储用户和助手的对话历史
+            # 每个消息都有一个 role 字段，用于标识是用户还是助手
             "messages": [],
+            # 表示当前处理的状态 如init、thinking、planning、thinking、done等
             "state": "init",
             "extracted": {"optimization_goal": DEFAULT_OPTIMIZATION_GOAL},
             "plan": None,
@@ -432,6 +435,7 @@ async def generate_plan_background(session: dict):
     agent_kwargs = {
         "method": "LLMNeSy",
         "env": env,
+        # 这是 Agent 使用的大语言模型对象 这里是ds模型的实例
         "backbone_llm": llm,
         "cache_dir": os.path.join(project_root, "cache"),
         "log_dir": os.path.join(project_root, "cache", "web", session["session_id"]),
@@ -441,6 +445,7 @@ async def generate_plan_background(session: dict):
         # budget_fit needs a wider pool because later, more expensive plans may
         # be closer to the budget. min_total_cost searches cheap-first, so the
         # first three distinct valid plans already satisfy the output objective.
+        # 最便宜的分支只需要3个候选计划，其他分支需要9个候选计划
         "max_candidates": 3 if cheapest_branch else 9,
         # Bound POI branching so a complete 3-day path is reached before the
         # DFS spends its entire budget enumerating alternatives for Day 1/2.
