@@ -16,6 +16,8 @@ uv.lock
 .venv
 .env
 data/reviews.sqlite3
+data/app.sqlite3*
+data/runtime_logs/
 deploy/gohumanloop-feishu/conf/app.conf
 deploy/gohumanloop-feishu/data/
 agent_env/runs

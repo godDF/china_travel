@@ -2,7 +2,7 @@
 name = "chinatravel"
 version = "0.1.0"
 description = "Add your description here"
-requires-python = ">=3.12"
+requires-python = ">=3.9,<3.10"
 dependencies = [
     "accelerate==1.6.0",
     "datasets==3.3.2",
@@ -34,3 +34,6 @@ dependencies = [
     "vllm==0.8.5",
     "z3-solver==4.14.1.0",
 ]
+
+[project.optional-dependencies]
+test = ["pytest==8.3.5"]

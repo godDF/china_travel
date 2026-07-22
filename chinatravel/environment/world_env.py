@@ -271,6 +271,124 @@ Description: Get the result of the index or go to the next page of the result.
 """
 
 
+__doc_zh__ = """
+世界环境 API：
+
+(1) attractions_keys(city: str)
+描述：返回景点数据的 (键, 类型) 对列表。
+参数：
+city：城市名称。
+
+(2) attractions_select(city: str, key: str, func: Callable)
+描述：根据指定键和指定函数筛选数据，返回 DataFrame。
+参数：
+city：城市名称。
+key：用于筛选的键列，只能使用一个键。如未指定，则返回全部数据。
+func：应用于键列的 lambda 函数，必须返回布尔值。仅应用于一个键。如未指定，则返回全部数据。
+
+(3) attractions_id_is_open(city: str, id: int, time: str)
+描述：返回指定 ID 的景点在指定时间是否开放。
+参数：
+city：城市名称。
+id：景点的 ID。
+time：要检查的时间，格式为 'HH:MM'。
+
+(4) attractions_nearby(city: str, point: str, topk: int, dist: float)
+描述：返回指定位置周边指定距离内的前 K 个景点。
+参数：
+city：城市名称。
+point：位置名称。
+topk：返回的景点数量。
+dist：距位置的最大距离，默认为 2。
+
+(5) attractions_types(city: str)
+描述：返回唯一的景点类型列表。
+参数：
+city：城市名称。
+
+(6) accommodations_keys(city: str)
+描述：返回住宿数据的 (键, 类型) 对列表。
+参数：
+city：城市名称。
+
+(7) accommodations_select(city: str, key: str = "", func: Callable)
+描述：根据指定键和指定函数筛选数据，返回 DataFrame。
+参数：
+city：城市名称。
+key：用于筛选的键列，只能使用一个键。如未指定，则返回全部数据。
+func：应用于键列的 lambda 函数，必须返回布尔值。仅应用于一个键。如未指定，则返回全部数据。
+
+(8) accommodations_nearby(city: str, point: str, topk: int, dist: float)
+描述：返回指定位置周边指定距离内的前 K 个住宿。
+参数：
+city：城市名称。
+point：位置名称。
+topk：返回的住宿数量。
+dist：距位置的最大距离，默认为 5。
+
+(9) restaurants_keys(city: str)
+描述：返回餐厅数据的 (键, 类型) 对列表。
+参数：
+city：城市名称。
+
+(10) restaurants_select(city: str, key: str = "", func: Callable)
+描述：根据指定键和指定函数筛选数据，返回 DataFrame。
+参数：
+city：城市名称。
+key：用于筛选的键列，只能使用一个键。如未指定，则返回全部数据。
+func：应用于键列的 lambda 函数，必须返回布尔值。仅应用于一个键。如未指定，则返回全部数据。
+
+(11) restaurants_id_is_open(city: str, id: int, time: str)
+描述：返回指定 ID 的餐厅在指定时间和日期是否营业。
+参数：
+city：城市名称。
+id：餐厅的 ID。
+time：要检查的时间，格式为 'HH:MM'。
+
+(12) restaurants_nearby(city: str, point: str, topk: int, dist: float)
+描述：返回指定位置周边指定距离内的前 K 个餐厅。
+参数：
+city：城市名称。
+point：位置名称。
+topk：返回的餐厅数量。
+dist：距位置的最大距离，默认为 2。
+
+(13) restaurants_restaurants_with_recommended_food(city: str, food: str)
+描述：返回所有推荐菜中包含指定食物的餐厅。
+参数：
+city：城市名称。
+food：要搜索的食物。
+
+(14) restaurants_cuisine(city: str)
+描述：返回唯一的餐厅菜系列表。
+参数：
+city：城市名称。
+
+(15) goto(city: str, start: str, end: str, start_time: str, transport_type: str)
+描述：返回两个地点之间的多种交通方式选项。
+参数：
+city：城市名称。
+start：起点名称。必须是地点名称，且与数据完全匹配。
+end：终点名称。必须是地点名称，且与数据完全匹配。
+start_time：出发时间，格式为 'HH:MM'。
+transport_type：交通方式，必须为 ['walk', 'taxi', 'metro'] 之一。
+
+(16) intercity_transport_select(start_city: str, end_city: str, intercity_type: str, earliest_leave_time: str = None)
+描述：获取两个城市之间的城际交通信息。您需要至少调用此函数两次，以获取往返两个地点之间的交通信息。
+参数：
+start_city：出发城市名称。
+end_city：到达城市名称。
+intercity_type：城际交通类型，必须为 ['train', 'airplane'] 之一。
+earliest_leave_time：最早出发时间，格式为 'HH:MM'。
+
+(17) Results[index] 和 Results[index].next_page()
+描述：获取索引对应的结果，或跳转到结果的下一页。
+"""
+
+
+
+
+
 if __name__ == "__main__":
     import random
 

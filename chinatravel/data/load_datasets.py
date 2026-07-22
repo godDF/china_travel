@@ -2,7 +2,6 @@ import sys
 import os
 import json
 import numpy as np
-from datasets import load_dataset as hg_load_dataset
 import ast
 
 project_root_path = os.path.dirname(
@@ -115,7 +114,20 @@ def load_query(args):
     #     config_name = "validation"
     # elif args.splits in ["human1000"]:
     #     config_name = "test"
-    query_data = hg_load_dataset("LAMDA-NeSy/ChinaTravel", name=config_name)[args.splits].to_list()
+    # Hugging Face datasets is only needed by the offline evaluation path.
+    # Keep it out of module import so the Web planner can use local JSON helpers
+    # even when optional native dependencies such as xxhash/pyarrow are blocked.
+    try:
+        from datasets import load_dataset as hg_load_dataset
+    except (ImportError, OSError) as exc:
+        raise RuntimeError(
+            "无法加载 Hugging Face datasets。Web 旅行规划不依赖它；"
+            "只有离线评测/远程数据集加载需要该依赖。"
+        ) from exc
+
+    query_data = hg_load_dataset(
+        "LAMDA-NeSy/ChinaTravel", name=config_name
+    )[args.splits].to_list()
 
 
     for data_i in query_data:

@@ -16,18 +16,93 @@
             align-items: center;
         }
 
-        #app {
+        .hidden { display: none !important; }
+
+        /* Authentication */
+        #auth-view {
             width: 100%;
-            max-width: 800px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(102,126,234,.18), transparent 34%),
+                radial-gradient(circle at 85% 80%, rgba(118,75,162,.16), transparent 36%),
+                #f5f7fb;
+        }
+        .auth-card {
+            width: min(420px, 100%);
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: rgba(255,255,255,.96);
+            box-shadow: 0 20px 55px rgba(58,65,111,.16);
+        }
+        .auth-brand { color: #4f46e5; font-size: 22px; font-weight: 800; }
+        .auth-subtitle { margin-top: 6px; color: #6b7280; font-size: 13px; }
+        .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 24px 0 18px; padding: 4px; border-radius: 10px; background: #f3f4f6; }
+        .auth-tab { padding: 9px; border: 0; border-radius: 8px; color: #6b7280; background: transparent; cursor: pointer; font: inherit; }
+        .auth-tab.active { color: #4338ca; background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,.08); font-weight: 700; }
+        .auth-field { margin-top: 14px; }
+        .auth-field label { display: block; margin-bottom: 6px; color: #374151; font-size: 12px; font-weight: 700; }
+        .auth-field input { width: 100%; padding: 11px 12px; border: 1px solid #d1d5db; border-radius: 9px; outline: none; font: inherit; }
+        .auth-field input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+        #auth-submit { width: 100%; margin-top: 20px; padding: 11px; border: 0; border-radius: 10px; color: #fff; background: linear-gradient(135deg,#667eea,#764ba2); cursor: pointer; font: inherit; font-weight: 700; }
+        #auth-submit:disabled { opacity: .65; cursor: wait; }
+        #auth-message { min-height: 20px; margin-top: 12px; color: #c62828; font-size: 12px; line-height: 1.5; }
+
+        /* Authenticated workspace and conversation history */
+        #workspace {
+            width: 100%;
+            max-width: 1200px;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 18px rgba(0,0,0,.1);
+        }
+        #conversation-sidebar {
+            width: 250px;
+            flex: 0 0 250px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #e5e7eb;
+            background: #f8f9fc;
+        }
+        .sidebar-head { padding: 16px 14px 12px; border-bottom: 1px solid #e5e7eb; }
+        .sidebar-title { color: #374151; font-size: 13px; font-weight: 800; }
+        #sidebar-new-chat { width: 100%; margin-top: 12px; padding: 9px 12px; border: 1px solid #6366f1; border-radius: 9px; color: #4f46e5; background: #fff; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; }
+        #sidebar-new-chat:hover { color: #fff; background: #6366f1; }
+        #conversation-list { flex: 1; overflow-y: auto; padding: 8px; }
+        .conversation-empty { padding: 24px 10px; color: #9ca3af; font-size: 12px; text-align: center; line-height: 1.7; }
+        .conversation-item { position: relative; margin-bottom: 5px; padding: 10px 32px 9px 10px; border: 1px solid transparent; border-radius: 9px; color: #4b5563; cursor: pointer; }
+        .conversation-item:hover { background: #eef2ff; }
+        .conversation-item.active { border-color: #c7d2fe; color: #3730a3; background: #e0e7ff; }
+        .conversation-title { overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .conversation-time { margin-top: 4px; color: #9ca3af; font-size: 10px; }
+        .conversation-archive { position: absolute; top: 8px; right: 6px; width: 25px; height: 25px; border: 0; border-radius: 6px; color: #9ca3af; background: transparent; cursor: pointer; opacity: 0; }
+        .conversation-item:hover .conversation-archive, .conversation-item.active .conversation-archive { opacity: 1; }
+        .conversation-archive:hover { color: #b91c1c; background: #fee2e2; }
+        #conversation-list-more { display: none; width: calc(100% - 16px); margin: 0 8px 10px; padding: 7px; border: 0; border-radius: 7px; color: #4f46e5; background: #eef2ff; cursor: pointer; font-size: 11px; }
+        .sidebar-account { padding: 12px 14px; border-top: 1px solid #e5e7eb; }
+        #account-name { color: #374151; font-size: 12px; font-weight: 700; }
+        #account-role { margin-top: 2px; color: #9ca3af; font-size: 10px; }
+        #logout-btn { margin-top: 9px; padding: 5px 9px; border: 1px solid #d1d5db; border-radius: 7px; color: #6b7280; background: #fff; cursor: pointer; font-size: 11px; }
+
+        #app {
+            width: auto;
+            min-width: 0;
+            flex: 1;
             height: 100vh;
             display: flex;
             flex-direction: column;
             background: #fff;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
         }
 
         /* Header */
         #header {
+            position: relative;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #fff;
             padding: 14px 20px;
@@ -204,7 +279,34 @@
         .rag-trace-details .rag-timeline { padding: 0 9px 9px; }
         .quick-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .quick-actions button { border: 0; border-radius: 16px; padding: 7px 12px; cursor: pointer; background: #667eea; color: #fff; }
-        #admin-link { float: right; color: white; font-size: 12px; text-decoration: none; opacity: .9; }
+        .header-actions { position: absolute; top: 13px; right: 16px; display: flex; gap: 10px; align-items: center; }
+        #admin-link { display: none; color: white; font-size: 12px; text-decoration: none; opacity: .9; }
+        #sidebar-toggle { display: none; border: 0; color: #fff; background: transparent; cursor: pointer; font-size: 20px; line-height: 1; }
+
+        /* Long persisted assistant messages remain readable without taking over the page. */
+        .message-content.is-collapsed {
+            position: relative;
+            max-height: 238px;
+            overflow: hidden;
+        }
+        .message-content.is-collapsed::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            height: 58px;
+            background: linear-gradient(transparent, var(--message-fade, #f1f3f5));
+            pointer-events: none;
+        }
+        .message.plan .message-content.is-collapsed { --message-fade: #e8f5e9; }
+        .message.rag .message-content.is-collapsed { --message-fade: #fff8e1; }
+        .message.confirmation .message-content.is-collapsed { --message-fade: #e3f2fd; }
+        .message.error .message-content.is-collapsed,
+        .message.rejected .message-content.is-collapsed { --message-fade: #ffebee; }
+        .message.user .message-content.is-collapsed { --message-fade: #667eea; }
+        .message-collapse-toggle { margin-top: 7px; padding: 3px 9px; border: 1px solid rgba(99,102,241,.35); border-radius: 12px; color: #4f46e5; background: rgba(255,255,255,.75); cursor: pointer; font: inherit; font-size: 11px; }
+        #history-loader { align-self: center; padding: 6px 12px; border: 0; border-radius: 14px; color: #4f46e5; background: #eef2ff; cursor: pointer; font-size: 11px; }
 
         /* Progress Panel - floating card with spinner */
         #progress-panel {
@@ -436,6 +538,15 @@
         #new-chat-btn:hover { background: #667eea; color: #fff; }
 
         /* Responsive */
+        @media (max-width: 760px) {
+            #workspace { max-width: none; }
+            #conversation-sidebar { position: absolute; z-index: 20; top: 0; bottom: 0; left: 0; box-shadow: 8px 0 28px rgba(0,0,0,.18); transform: translateX(-102%); transition: transform .2s ease; }
+            #workspace.sidebar-open #conversation-sidebar { transform: translateX(0); }
+            #sidebar-toggle { display: inline-block; }
+            .header-actions { left: 12px; right: auto; }
+            #admin-link { position: fixed; z-index: 21; right: 12px; top: 16px; }
+        }
+
         @media (max-width: 500px) {
             .message { max-width: 90%; font-size: 13px; }
             .rag-metrics { grid-template-columns: 1fr; }
@@ -446,14 +557,57 @@
     </style>
 </head>
 <body>
-<div id="app">
-    <div id="header">
-        <a id="admin-link" href="/admin" target="_blank">管理员审核</a>
-        ChinaTravel · AI 旅行规划助手
-        <div class="subtitle">支持城市：北京 上海 南京 苏州 杭州 深圳 成都 武汉 广州 重庆</div>
-    </div>
-    <div id="messages">
-        <div class="message assistant">
+<div id="auth-view">
+    <form id="auth-form" class="auth-card" onsubmit="submitAuth(event)">
+        <div class="auth-brand">ChinaTravel</div>
+        <div class="auth-subtitle">登录后可安全保存和恢复你的旅行对话</div>
+        <div class="auth-tabs" role="tablist" aria-label="账号操作">
+            <button id="login-tab" class="auth-tab active" type="button" onclick="setAuthMode('login')">登录</button>
+            <button id="register-tab" class="auth-tab" type="button" onclick="setAuthMode('register')">注册</button>
+        </div>
+        <div class="auth-field">
+            <label for="auth-username">用户名</label>
+            <input id="auth-username" name="username" autocomplete="username" minlength="3" maxlength="64" required>
+        </div>
+        <div class="auth-field">
+            <label for="auth-password">密码</label>
+            <input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="6" maxlength="128" required>
+        </div>
+        <div id="confirm-password-field" class="auth-field hidden">
+            <label for="auth-password-confirm">确认密码</label>
+            <input id="auth-password-confirm" name="password_confirm" type="password" autocomplete="new-password" minlength="6" maxlength="128">
+        </div>
+        <button id="auth-submit" type="submit">登录</button>
+        <div id="auth-message" role="alert" aria-live="polite"></div>
+    </form>
+</div>
+
+<div id="workspace" class="hidden">
+    <aside id="conversation-sidebar" aria-label="历史会话">
+        <div class="sidebar-head">
+            <div class="sidebar-title">历史会话</div>
+            <button id="sidebar-new-chat" type="button" onclick="newChat()">＋ 新建对话</button>
+        </div>
+        <div id="conversation-list"></div>
+        <button id="conversation-list-more" type="button" onclick="loadMoreConversations()">加载更多会话</button>
+        <div class="sidebar-account">
+            <div id="account-name"></div>
+            <div id="account-role"></div>
+            <button id="logout-btn" type="button" onclick="logout()">退出登录</button>
+        </div>
+    </aside>
+
+    <div id="app">
+        <div id="header">
+            <div class="header-actions">
+                <button id="sidebar-toggle" type="button" onclick="toggleSidebar()" aria-label="打开历史会话">☰</button>
+                <a id="admin-link" href="/admin" target="_blank" rel="noopener noreferrer">管理员审核</a>
+            </div>
+            ChinaTravel · AI 旅行规划助手
+            <div class="subtitle">支持城市：北京 上海 南京 苏州 杭州 深圳 成都 武汉 广州 重庆</div>
+        </div>
+        <div id="messages">
+            <div id="welcome-message" class="message assistant">
 欢迎使用 ChinaTravel · AI 旅行规划助手！
 
 我可以为你提供：
@@ -470,18 +624,30 @@
   - 复杂规则查询：「大一新生还没有学生证，第一次坐高铁能否购买学生票？需要什么证明、如何核验、优惠区间怎么填写、每学年可以买几次？」
 
 对于复杂规则问题，系统会展示问题拆分、向量检索、证据评估、查询改写、二次检索和回答校验过程；知识库证据不足时不会编造答案。
+            </div>
         </div>
-    </div>
-    <div id="input-area">
-        <button id="new-chat-btn" onclick="newChat()">新对话</button>
-        <input id="message-input" type="text" placeholder="输入旅行需求或旅行规则问题..." onkeydown="if(event.key==='Enter')sendMessage()">
-        <button id="send-btn" onclick="sendMessage()">发送</button>
+        <div id="input-area">
+            <button id="new-chat-btn" onclick="newChat()">新对话</button>
+            <input id="message-input" type="text" placeholder="输入旅行需求或旅行规则问题..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button id="send-btn" onclick="sendMessage()">发送</button>
+        </div>
     </div>
 </div>
 
 <script>
 // ===== State =====
+const welcomeMessageText = document.getElementById('welcome-message').textContent.trim();
 let sessionId = null;
+let activeConversationId = null;
+let currentUser = null;
+let authMode = 'login';
+let conversationItems = [];
+let conversationNextCursor = null;
+let messageNextBeforeSeq = null;
+let loadingConversations = false;
+let loadingMessages = false;
+let historyRequestVersion = 0;
+let conversationRefreshTimer = null;
 let pollTimer = null;
 let isGenerating = false;
 let seenSteps = new Set();
@@ -499,46 +665,361 @@ async function api(path, method = 'GET', body = null) {
     const opts = {
         method,
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
     };
     if (body) opts.body = JSON.stringify(body);
     const resp = await fetch(path, opts);
     if (!resp.ok) {
-        const err = await resp.json().catch(() => ({ detail: 'Network error' }));
-        throw new Error(err.detail || 'API error');
+        const err = await resp.json().catch(() => ({ detail: `HTTP ${resp.status}` }));
+        const error = new Error(err.detail || err.message || 'API error');
+        error.status = resp.status;
+        error.payload = err;
+        if (resp.status === 401 && !path.startsWith('/api/auth/')) {
+            showAuth('登录状态已失效，请重新登录。');
+        }
+        throw error;
     }
-    return resp.json();
+    if (resp.status === 204) return {};
+    return resp.json().catch(() => ({}));
+}
+
+function normalizeUser(payload) {
+    if (!payload || typeof payload !== 'object') return null;
+    const candidate = payload.user && typeof payload.user === 'object' ? payload.user : payload;
+    if (!candidate.user_id && !candidate.username) return null;
+    return {
+        user_id: candidate.user_id || candidate.id || '',
+        username: candidate.username || candidate.name || '用户',
+        role: candidate.role || 'user',
+    };
+}
+
+function setAuthMode(mode) {
+    authMode = mode === 'register' ? 'register' : 'login';
+    document.getElementById('login-tab').classList.toggle('active', authMode === 'login');
+    document.getElementById('register-tab').classList.toggle('active', authMode === 'register');
+    document.getElementById('confirm-password-field').classList.toggle('hidden', authMode !== 'register');
+    const password = document.getElementById('auth-password');
+    const confirmation = document.getElementById('auth-password-confirm');
+    password.autocomplete = authMode === 'register' ? 'new-password' : 'current-password';
+    confirmation.required = authMode === 'register';
+    document.getElementById('auth-submit').textContent = authMode === 'register' ? '创建账号' : '登录';
+    document.getElementById('auth-message').textContent = '';
+}
+
+function showAuth(message = '') {
+    stopPolling();
+    stopRagPolling();
+    currentUser = null;
+    sessionId = null;
+    activeConversationId = null;
+    conversationItems = [];
+    conversationNextCursor = null;
+    messageNextBeforeSeq = null;
+    historyRequestVersion += 1;
+    loadingMessages = false;
+    if (conversationRefreshTimer) clearTimeout(conversationRefreshTimer);
+    conversationRefreshTimer = null;
+    document.getElementById('conversation-list').innerHTML = '';
+    document.getElementById('messages').innerHTML = '';
+    document.getElementById('workspace').classList.add('hidden');
+    document.getElementById('auth-view').classList.remove('hidden');
+    document.getElementById('auth-message').textContent = message;
+    document.getElementById('auth-password').value = '';
+    document.getElementById('auth-password-confirm').value = '';
+}
+
+async function submitAuth(event) {
+    event.preventDefault();
+    const username = document.getElementById('auth-username').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const confirmation = document.getElementById('auth-password-confirm').value;
+    const message = document.getElementById('auth-message');
+    const button = document.getElementById('auth-submit');
+    message.textContent = '';
+    if (authMode === 'register' && password !== confirmation) {
+        message.textContent = '两次输入的密码不一致。';
+        return;
+    }
+    button.disabled = true;
+    try {
+        const resp = await api(`/api/auth/${authMode}`, 'POST', { username, password });
+        let user = normalizeUser(resp);
+        if (!user) user = normalizeUser(await api('/api/auth/me'));
+        if (!user) throw new Error('登录成功，但服务端未返回用户信息');
+        await startAuthenticatedApp(user);
+    } catch (error) {
+        message.textContent = error.message || '操作失败，请稍后重试。';
+    } finally {
+        button.disabled = false;
+    }
+}
+
+async function logout() {
+    try {
+        await api('/api/auth/logout', 'POST');
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+    conversationItems = [];
+    showAuth('已安全退出登录。');
+}
+
+async function startAuthenticatedApp(user) {
+    currentUser = user;
+    conversationItems = [];
+    conversationNextCursor = null;
+    document.getElementById('auth-view').classList.add('hidden');
+    document.getElementById('workspace').classList.remove('hidden');
+    document.getElementById('account-name').textContent = user.username;
+    document.getElementById('account-role').textContent = user.role === 'admin' ? '管理员账号' : '普通用户';
+    document.getElementById('admin-link').style.display = user.role === 'admin' ? 'inline' : 'none';
+    const conversations = await loadConversations(true);
+    if (conversations.length > 0) {
+        await activateConversation(conversations[0].conversation_id);
+    } else {
+        await newChat();
+    }
 }
 
 // ===== Init =====
 async function init() {
+    document.getElementById('messages').addEventListener('scroll', handleMessageScroll);
+    document.getElementById('conversation-list').addEventListener('scroll', handleConversationScroll);
     try {
-        const resp = await api('/api/sessions/new', 'POST');
-        sessionId = resp.session_id;
-    } catch (e) {
-        console.error('Init error:', e);
-        addMessage('assistant', '无法连接到服务器，请确认后端已启动。', 'error');
+        const resp = await api('/api/auth/me');
+        const user = normalizeUser(resp);
+        if (!user || resp.authenticated === false) {
+            showAuth();
+            return;
+        }
+        await startAuthenticatedApp(user);
+    } catch (error) {
+        if (error.status === 401) {
+            showAuth();
+        } else {
+            showAuth(`无法连接到服务器：${error.message}`);
+        }
     }
 }
 
-// ===== New Chat =====
-async function newChat() {
+function normalizeConversation(item) {
+    if (!item || typeof item !== 'object') return null;
+    const conversationId = item.conversation_id || item.id;
+    if (!conversationId) return null;
+    return {
+        ...item,
+        conversation_id: String(conversationId),
+        title: String(item.title || '新对话'),
+        updated_at: item.updated_at || item.created_at || '',
+    };
+}
+
+function conversationPayloadItems(payload) {
+    const raw = Array.isArray(payload)
+        ? payload
+        : (payload.items || payload.conversations || payload.data || []);
+    return raw.map(normalizeConversation).filter(Boolean);
+}
+
+function formatConversationTime(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value);
+    return new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date);
+}
+
+function renderConversationList() {
+    const list = document.getElementById('conversation-list');
+    list.innerHTML = '';
+    if (conversationItems.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'conversation-empty';
+        empty.textContent = '还没有历史会话\n点击“新建对话”开始';
+        list.appendChild(empty);
+    }
+    conversationItems.forEach((conversation) => {
+        const item = document.createElement('div');
+        item.className = `conversation-item${conversation.conversation_id === activeConversationId ? ' active' : ''}`;
+        item.onclick = () => activateConversation(conversation.conversation_id);
+
+        const title = document.createElement('div');
+        title.className = 'conversation-title';
+        title.textContent = conversation.title;
+        title.title = conversation.title;
+        const time = document.createElement('div');
+        time.className = 'conversation-time';
+        time.textContent = formatConversationTime(conversation.updated_at);
+        const archive = document.createElement('button');
+        archive.type = 'button';
+        archive.className = 'conversation-archive';
+        archive.title = '归档此会话';
+        archive.setAttribute('aria-label', `归档 ${conversation.title}`);
+        archive.textContent = '×';
+        archive.onclick = (event) => archiveConversation(event, conversation.conversation_id);
+        item.appendChild(title);
+        item.appendChild(time);
+        item.appendChild(archive);
+        list.appendChild(item);
+    });
+    document.getElementById('conversation-list-more').style.display = conversationNextCursor ? 'block' : 'none';
+}
+
+async function loadConversations(reset = false) {
+    if (!currentUser) return conversationItems;
+    if (loadingConversations) return conversationItems;
+    loadingConversations = true;
+    try {
+        const params = new URLSearchParams({ limit: '20' });
+        if (!reset && conversationNextCursor) params.set('cursor', conversationNextCursor);
+        const resp = await api(`/api/conversations?${params.toString()}`);
+        const incoming = conversationPayloadItems(resp);
+        if (reset) conversationItems = [];
+        const known = new Set(conversationItems.map(item => item.conversation_id));
+        incoming.forEach((item) => {
+            if (!known.has(item.conversation_id)) conversationItems.push(item);
+        });
+        conversationNextCursor = resp.next_cursor || resp.nextCursor || null;
+        renderConversationList();
+        return conversationItems;
+    } catch (error) {
+        console.error('Load conversations error:', error);
+        return conversationItems;
+    } finally {
+        loadingConversations = false;
+    }
+}
+
+function loadMoreConversations() {
+    if (conversationNextCursor) loadConversations(false);
+}
+
+function handleConversationScroll(event) {
+    const target = event.currentTarget;
+    if (conversationNextCursor && target.scrollTop + target.clientHeight >= target.scrollHeight - 40) {
+        loadMoreConversations();
+    }
+}
+
+function scheduleConversationRefresh() {
+    if (conversationRefreshTimer) clearTimeout(conversationRefreshTimer);
+    conversationRefreshTimer = setTimeout(() => loadConversations(true), 700);
+}
+
+function prepareForConversationChange() {
     stopPolling();
     stopRagPolling();
     isGenerating = false;
     seenSteps = new Set();
     renderedPlanCount = 0;
     lastReviewStatus = null;
+    messageNextBeforeSeq = null;
+    historyRequestVersion += 1;
+    loadingMessages = false;
     document.getElementById('send-btn').disabled = false;
     document.getElementById('message-input').disabled = false;
     document.getElementById('messages').innerHTML = '';
     removeProgressPanel();
     removeRagProgressPanel();
+}
+
+function sessionIdFromPayload(payload) {
+    return payload.session_id || (payload.session && payload.session.session_id) || null;
+}
+
+// ===== New Chat =====
+async function newChat() {
+    if (!currentUser) return;
+    prepareForConversationChange();
+    const requestVersion = historyRequestVersion;
+    sessionId = null;
+    activeConversationId = null;
     try {
-        const resp = await api('/api/sessions/new', 'POST');
-        sessionId = resp.session_id;
-        addMessage('assistant', '新对话已开始！请描述你的旅行需求~');
-    } catch (e) {
-        addMessage('assistant', '创建新会话失败。', 'error');
+        const resp = await api('/api/conversations', 'POST', {});
+        if (requestVersion !== historyRequestVersion) return;
+        activeConversationId = String(resp.conversation_id || (resp.conversation && resp.conversation.conversation_id) || '');
+        sessionId = sessionIdFromPayload(resp);
+        if (!sessionId || !activeConversationId) throw new Error('服务端未返回新会话标识');
+        showWelcomeMessage();
+        await loadConversations(true);
+        renderConversationList();
+        closeSidebarOnMobile();
+        document.getElementById('message-input').focus();
+    } catch (error) {
+        addMessage('assistant', `创建新会话失败：${error.message}`, 'error');
+    }
+}
+
+async function activateConversation(conversationId) {
+    if (!conversationId || conversationId === activeConversationId && sessionId) return;
+    prepareForConversationChange();
+    const requestVersion = historyRequestVersion;
+    sessionId = null;
+    activeConversationId = null;
+    try {
+        const resp = await api(`/api/conversations/${encodeURIComponent(conversationId)}/activate`, 'POST');
+        if (requestVersion !== historyRequestVersion) return;
+        sessionId = sessionIdFromPayload(resp);
+        activeConversationId = String(resp.conversation_id || conversationId);
+        if (!sessionId) throw new Error('无法恢复该会话的运行状态');
+        renderConversationList();
+        await loadConversationMessages(true);
+        resumeConversationState(resp);
+        closeSidebarOnMobile();
+    } catch (error) {
+        addMessage('assistant', `加载历史会话失败：${error.message}`, 'error');
+    }
+}
+
+async function archiveConversation(event, conversationId) {
+    event.stopPropagation();
+    if (!window.confirm('归档后将从当前历史列表隐藏，确定继续吗？')) return;
+    try {
+        await api(`/api/conversations/${encodeURIComponent(conversationId)}/archive`, 'POST');
+        const wasActive = conversationId === activeConversationId;
+        conversationItems = conversationItems.filter(item => item.conversation_id !== conversationId);
+        activeConversationId = wasActive ? null : activeConversationId;
+        renderConversationList();
+        if (wasActive) {
+            if (conversationItems.length > 0) await activateConversation(conversationItems[0].conversation_id);
+            else await newChat();
+        }
+    } catch (error) {
+        window.alert(`归档失败：${error.message}`);
+    }
+}
+
+function resumeConversationState(payload) {
+    const state = payload.state || (payload.session && payload.session.state) || 'init';
+    if (state === 'generating') {
+        isGenerating = true;
+        document.getElementById('send-btn').disabled = true;
+        document.getElementById('message-input').disabled = true;
+        createProgressPanel(Boolean(payload.sensitive));
+        startPolling();
+    } else if (state === 'rag_querying' && payload.rag_job_id) {
+        beginRagPolling({
+            type: 'rag_status',
+            status: 'running',
+            job_id: payload.rag_job_id,
+            progress: 0,
+            message: 'Agentic RAG 正在恢复查询知识库',
+        });
+    } else if (state === 'pending_review' || state === 'review_error') {
+        showReviewWaitingPanel(payload.review_message);
+        startPolling();
+    } else if (state === 'confirmed') {
+        addQuickActions([['确认并开始规划', '确认并开始规划']]);
+    }
+}
+
+function toggleSidebar() {
+    document.getElementById('workspace').classList.toggle('sidebar-open');
+}
+
+function closeSidebarOnMobile() {
+    if (window.matchMedia('(max-width: 760px)').matches) {
+        document.getElementById('workspace').classList.remove('sidebar-open');
     }
 }
 
@@ -556,6 +1037,9 @@ async function sendMessage() {
     try {
         const resp = await api('/api/chat', 'POST', {
             session_id: sessionId,
+            request_id: typeof crypto.randomUUID === 'function'
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
             message: msg,
         });
 
@@ -589,6 +1073,7 @@ async function sendMessage() {
         if (resp.reset === true) {
             resetClientRequestState();
         }
+        scheduleConversationRefresh();
     } catch (e) {
         addMessage('assistant', '请求失败：' + e.message, 'error');
     }
@@ -935,6 +1420,7 @@ function resetClientRequestState() {
     lastReviewStatus = null;
     document.getElementById('send-btn').disabled = false;
     document.getElementById('message-input').disabled = false;
+    if (activeConversationId) scheduleConversationRefresh();
 }
 
 async function resetAfterTerminalResponse() {
@@ -1026,6 +1512,123 @@ function stopPolling() {
     }
 }
 
+// ===== Persisted message history =====
+function parseMessageMetadata(message) {
+    const metadata = message.metadata !== undefined ? message.metadata : message.metadata_json;
+    if (!metadata) return {};
+    if (typeof metadata === 'object') return metadata;
+    try {
+        return JSON.parse(metadata);
+    } catch (_) {
+        return {};
+    }
+}
+
+function historyPayloadItems(payload) {
+    const raw = Array.isArray(payload)
+        ? payload
+        : (payload.items || payload.messages || payload.data || []);
+    return raw.filter(item => item && typeof item === 'object').sort((a, b) => Number(a.seq || 0) - Number(b.seq || 0));
+}
+
+async function loadConversationMessages(reset = false) {
+    if (!activeConversationId || loadingMessages) return;
+    loadingMessages = true;
+    const requestVersion = historyRequestVersion;
+    const requestedConversationId = activeConversationId;
+    const messages = document.getElementById('messages');
+    const previousHeight = messages.scrollHeight;
+    const previousTop = messages.scrollTop;
+    try {
+        const params = new URLSearchParams({ limit: '50' });
+        if (!reset && messageNextBeforeSeq !== null) params.set('before_seq', String(messageNextBeforeSeq));
+        const resp = await api(`/api/conversations/${encodeURIComponent(requestedConversationId)}/messages?${params.toString()}`);
+        if (requestVersion !== historyRequestVersion || requestedConversationId !== activeConversationId) return;
+        const items = historyPayloadItems(resp);
+        if (reset) messages.innerHTML = '';
+        const oldLoader = document.getElementById('history-loader');
+        if (oldLoader) oldLoader.remove();
+
+        const fragment = document.createDocumentFragment();
+        items.forEach(item => renderStoredMessage(item, fragment));
+        if (reset) messages.appendChild(fragment);
+        else messages.insertBefore(fragment, messages.firstChild);
+
+        messageNextBeforeSeq = resp.next_before_seq ?? resp.nextBeforeSeq ?? null;
+        if (messageNextBeforeSeq !== null) addHistoryLoader();
+
+        if (reset) {
+            if (items.length === 0) showWelcomeMessage();
+            scrollMessagesToBottom();
+        } else {
+            requestAnimationFrame(() => {
+                messages.scrollTop = messages.scrollHeight - previousHeight + previousTop;
+            });
+        }
+    } catch (error) {
+        if (reset && messages.children.length === 0) {
+            addMessage('assistant', `历史消息加载失败：${error.message}`, 'error');
+        }
+    } finally {
+        if (requestVersion === historyRequestVersion) loadingMessages = false;
+    }
+}
+
+function addHistoryLoader() {
+    const messages = document.getElementById('messages');
+    const button = document.createElement('button');
+    button.id = 'history-loader';
+    button.type = 'button';
+    button.textContent = '加载更早消息';
+    button.onclick = () => loadConversationMessages(false);
+    messages.insertBefore(button, messages.firstChild);
+}
+
+function handleMessageScroll(event) {
+    if (event.currentTarget.scrollTop <= 24 && messageNextBeforeSeq !== null && !loadingMessages) {
+        loadConversationMessages(false);
+    }
+}
+
+function renderStoredMessage(message, target) {
+    const metadata = parseMessageMetadata(message);
+    const role = message.role === 'user' ? 'user' : 'assistant';
+    const type = String(message.type || '');
+    const content = String(message.content || '');
+    if (!content && type !== 'rag') return;
+
+    if (role === 'assistant' && type === 'rag') {
+        addRagMessage(
+            content,
+            metadata.sources || message.sources || [],
+            metadata.rag_meta || message.rag_meta || null,
+            metadata.trace || message.trace || [],
+            { target, history: true, noScroll: true },
+        );
+        return;
+    }
+
+    const classMap = {
+        plan: 'plan',
+        confirmation: 'confirmation',
+        error: 'error',
+        guardrail_error: 'error',
+        review: 'review',
+        pending_review: 'review',
+        review_pending: 'review',
+        review_approved: 'review',
+        review_rejected: 'rejected',
+        rejected: 'rejected',
+    };
+    const thoughts = Array.isArray(metadata.thoughts) ? metadata.thoughts : [];
+    addMessage(role, content, classMap[type] || '', thoughts, { target, history: true, noScroll: true });
+}
+
+function showWelcomeMessage() {
+    addMessage('assistant', welcomeMessageText, '', [], { noScroll: true });
+    scrollMessagesToBottom();
+}
+
 // ===== Render =====
 function getThoughtTexts(progress) {
     return progress
@@ -1042,7 +1645,33 @@ function scrollMessagesToBottom() {
     });
 }
 
-function addMessage(role, content, cls = '', thoughts = []) {
+function shouldOfferMessageCollapse(content) {
+    const text = String(content || '');
+    return text.length > 1200 || text.split(/\r?\n/).length > 18;
+}
+
+function addMessageCollapseControl(container, content, collapsedByDefault) {
+    if (!shouldOfferMessageCollapse(content)) return;
+    const messageContent = container.querySelector('.message-content');
+    if (!messageContent) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'message-collapse-toggle';
+
+    const setCollapsed = (collapsed) => {
+        messageContent.classList.toggle('is-collapsed', collapsed);
+        button.textContent = collapsed ? '展开全文' : '收起全文';
+        button.setAttribute('aria-expanded', String(!collapsed));
+    };
+    button.onclick = () => {
+        const nextCollapsed = !messageContent.classList.contains('is-collapsed');
+        setCollapsed(nextCollapsed);
+    };
+    setCollapsed(Boolean(collapsedByDefault));
+    container.appendChild(button);
+}
+
+function addMessage(role, content, cls = '', thoughts = [], options = {}) {
     const div = document.createElement('div');
     div.className = `message ${role} ${cls}`;
 
@@ -1066,8 +1695,13 @@ function addMessage(role, content, cls = '', thoughts = []) {
     messageContent.className = 'message-content';
     messageContent.textContent = content;
     div.appendChild(messageContent);
-    document.getElementById('messages').appendChild(div);
-    scrollMessagesToBottom();
+    if (role === 'assistant') {
+        addMessageCollapseControl(div, content, options.history === true);
+    }
+    const target = options.target || document.getElementById('messages');
+    target.appendChild(div);
+    if (options.noScroll !== true) scrollMessagesToBottom();
+    return div;
 }
 
 function addRagMetricCard(container, label, value, hint) {
@@ -1106,10 +1740,8 @@ function addRagTraceDetails(container, trace) {
     container.appendChild(details);
 }
 
-function addRagMessage(content, sources, meta, trace = []) {
-    addMessage('assistant', content, 'rag');
-    const messages = document.getElementById('messages');
-    const div = messages.lastElementChild;
+function addRagMessage(content, sources = [], meta, trace = [], options = {}) {
+    const div = addMessage('assistant', content, 'rag', [], { ...options, noScroll: true });
     if (!div) return;
 
     addRagTraceDetails(div, trace);
@@ -1162,9 +1794,9 @@ function addRagMessage(content, sources, meta, trace = []) {
         div.appendChild(metrics);
     }
 
-    if (!sources.length) {
-        scrollMessagesToBottom();
-        return;
+    if (!Array.isArray(sources) || !sources.length) {
+        if (options.noScroll !== true) scrollMessagesToBottom();
+        return div;
     }
     const sourceBox = document.createElement('div');
     sourceBox.className = 'message-sources';
@@ -1185,7 +1817,8 @@ function addRagMessage(content, sources, meta, trace = []) {
         }
     });
     div.appendChild(sourceBox);
-    scrollMessagesToBottom();
+    if (options.noScroll !== true) scrollMessagesToBottom();
+    return div;
 }
 
 function addQuickActions(actions) {

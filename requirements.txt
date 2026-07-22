@@ -27,5 +27,8 @@ qdrant-client==1.12.1
 PyYAML>=6,<7
 gohumanloop==0.0.9
 
+# Test runner (runtime memory features use only existing dependencies)
+pytest==8.3.5
+
 -f https://download.pytorch.org/whl/cu121
 torch==2.6.0

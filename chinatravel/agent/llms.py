@@ -5,7 +5,6 @@ from transformers import AutoTokenizer
 from transformers import AutoConfig
 
 # from modelscope import AutoModelForCausalLM, AutoTokenizer
-import tiktoken
 
 import re
 import sys
@@ -163,6 +162,12 @@ class GLM4Plus(AbstractLLM):
 class GPT4o(AbstractLLM):
     def __init__(self):
         super().__init__()
+        # tiktoken ships a native Windows extension.  Import it only when the
+        # GPT-4o adapter is actually selected so DeepSeek and the web service
+        # can run in environments whose application-control policy blocks that
+        # optional extension.
+        import tiktoken
+
         self.llm = OpenAI()
         self.name = "GPT4o"
         self.tokenizer = tiktoken.encoding_for_model("gpt-4o")
